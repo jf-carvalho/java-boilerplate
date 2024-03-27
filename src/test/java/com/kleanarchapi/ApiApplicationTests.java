@@ -1,4 +1,4 @@
-package med.voll.api;
+package com.kleanarchapi;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
