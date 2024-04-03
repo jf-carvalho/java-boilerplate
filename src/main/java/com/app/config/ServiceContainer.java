@@ -1,9 +1,9 @@
-package com.kleanarchapi.config;
+package com.app.config;
 
-import com.kleanarchapi.application.service.UserService;
-import com.kleanarchapi.domain.entity.User;
-import com.kleanarchapi.infrastructure.persistence.repository.RepositoryInterface;
-import com.kleanarchapi.infrastructure.persistence.repository.spring.SpringRepository;
+import com.app.application.service.UserService;
+import com.app.domain.entity.User;
+import com.app.infrastructure.persistence.repository.RepositoryInterface;
+import com.app.infrastructure.persistence.repository.spring.SpringRepository;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 

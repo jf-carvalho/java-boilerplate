@@ -1,4 +1,4 @@
-package com.kleanarchapi.infrastructure.persistence.criteria;
+package com.app.infrastructure.persistence.criteria;
 
 import java.util.ArrayList;
 import java.util.List;

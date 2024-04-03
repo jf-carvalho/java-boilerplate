@@ -1,4 +1,4 @@
-package com.kleanarchapi.domain.exception;
+package com.app.domain.exception;
 
 public class EntityNotFoundException extends RuntimeException {
     public EntityNotFoundException(String message) {

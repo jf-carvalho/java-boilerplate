@@ -1,7 +1,7 @@
-package com.kleanarchapi.application.service;
+package com.app.application.service;
 
-import com.kleanarchapi.domain.entity.User;
-import com.kleanarchapi.infrastructure.persistence.repository.RepositoryInterface;
+import com.app.domain.entity.User;
+import com.app.infrastructure.persistence.repository.RepositoryInterface;
 
 public class UserService {
     private final RepositoryInterface<User> userRepository;

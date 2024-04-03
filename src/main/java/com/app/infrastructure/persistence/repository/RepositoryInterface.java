@@ -1,7 +1,6 @@
-package com.kleanarchapi.infrastructure.persistence.repository;
+package com.app.infrastructure.persistence.repository;
 
-import com.kleanarchapi.infrastructure.persistence.criteria.ConditionInterface;
-import com.kleanarchapi.infrastructure.persistence.criteria.Criteria;
+import com.app.infrastructure.persistence.criteria.Criteria;
 
 import java.util.List;
 

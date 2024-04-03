@@ -1,9 +1,9 @@
-package com.kleanarchapi.infrastructure.persistence.repository.spring;
+package com.app.infrastructure.persistence.repository.spring;
 
-import com.kleanarchapi.domain.exception.EntityNotFoundException;
-import com.kleanarchapi.domain.exception.IllegalUpdateException;
-import com.kleanarchapi.infrastructure.persistence.criteria.*;
-import com.kleanarchapi.infrastructure.persistence.repository.RepositoryInterface;
+import com.app.domain.exception.EntityNotFoundException;
+import com.app.domain.exception.IllegalUpdateException;
+import com.app.infrastructure.persistence.criteria.*;
+import com.app.infrastructure.persistence.repository.RepositoryInterface;
 import jakarta.persistence.Query;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;

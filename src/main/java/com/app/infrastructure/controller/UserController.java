@@ -1,6 +1,6 @@
-package com.kleanarchapi.infrastructure.controller;
+package com.app.infrastructure.controller;
 
-import com.kleanarchapi.application.service.UserService;
+import com.app.application.service.UserService;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 

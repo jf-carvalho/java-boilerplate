@@ -1,0 +1,4 @@
+flyway.url=jdbc:mysql://localhost:3312/app
+flyway.user=root
+flyway.password=root
+flyway.schemas=app

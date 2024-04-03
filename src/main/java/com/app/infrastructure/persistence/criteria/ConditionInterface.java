@@ -1,4 +1,4 @@
-package com.kleanarchapi.infrastructure.persistence.criteria;
+package com.app.infrastructure.persistence.criteria;
 
 public interface ConditionInterface<T> {
     ConditionType getType();

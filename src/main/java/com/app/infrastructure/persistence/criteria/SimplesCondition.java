@@ -1,4 +1,4 @@
-package com.kleanarchapi.infrastructure.persistence.criteria;
+package com.app.infrastructure.persistence.criteria;
 
 public class SimplesCondition<T> implements ConditionInterface<T> {
     private String field;

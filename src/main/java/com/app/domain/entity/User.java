@@ -1,4 +1,4 @@
-package com.kleanarchapi.domain.entity;
+package com.app.domain.entity;
 
 import jakarta.persistence.*;
 
