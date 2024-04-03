@@ -1,7 +1,9 @@
 package com.app.config;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.env.Environment;
 import org.springframework.jdbc.datasource.DriverManagerDataSource;
 import org.springframework.orm.jpa.JpaTransactionManager;
 import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
@@ -14,13 +16,20 @@ import javax.sql.DataSource;
 
 @Configuration
 public class JpaConfig {
+    @Autowired
+    private Environment environment;
+
     @Bean
     public DataSource dataSource() {
+        String url = environment.getProperty("spring.datasource.url");
+        String username = environment.getProperty("spring.datasource.username");
+        String password = environment.getProperty("spring.datasource.password");
+
         DriverManagerDataSource dataSource = new DriverManagerDataSource();
         dataSource.setDriverClassName("com.mysql.cj.jdbc.Driver");
-        dataSource.setUrl("jdbc:mysql://localhost:3312/app");
-        dataSource.setUsername("root");
-        dataSource.setPassword("root");
+        dataSource.setUrl(url);
+        dataSource.setUsername(username);
+        dataSource.setPassword(password);
         return dataSource;
     }
 
