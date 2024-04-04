@@ -15,12 +15,16 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 public class SpringRepository<E> implements RepositoryInterface<E> {
-    @Autowired
+
     private EntityManager entityManager;
 
     private Class<E> entityClass;
 
     private int equalsConditionsStrings = 0;
+
+    public SpringRepository(EntityManager entityManager) {
+        this.entityManager = entityManager;
+    }
 
     @Override
     public void setEntity(Class<E> entityClass) {
