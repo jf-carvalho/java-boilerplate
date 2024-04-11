@@ -6,15 +6,15 @@ import java.util.List;
 
 public interface RepositoryInterface<E> {
     void setEntity(Class<E> entityClass);
-    E getById(int id);
+    E getById(Long id);
 
     List<E> getAll();
 
     E create(E newEntity);
 
-    E update(int id, E entity);
+    E update(Long id, E entity);
 
-    boolean delete(int id);
+    boolean delete(Long id);
 
     List<E> getByFilter(Criteria criteria);
 }

@@ -15,7 +15,7 @@ public class Criteria {
     }
 
     public <T> Criteria equals(String field, T value) {
-        SimplesCondition<T> equalsCondition = new SimplesCondition<T>(ConditionType.EQUALS);
+        SimpleCondition<T> equalsCondition = new SimpleCondition<T>(ConditionType.EQUALS);
         equalsCondition.setField(field);
         equalsCondition.setValue(value);
         this.conditions.add(equalsCondition);
@@ -24,7 +24,7 @@ public class Criteria {
     }
 
     public <T> Criteria like(String field, T value) {
-        SimplesCondition<T> likeCondition = new SimplesCondition<T>(ConditionType.LIKE);
+        SimpleCondition<T> likeCondition = new SimpleCondition<T>(ConditionType.LIKE);
         likeCondition.setField(field);
         likeCondition.setValue(value);
         this.conditions.add(likeCondition);
@@ -33,7 +33,7 @@ public class Criteria {
     }
 
     public Criteria order(String field, OrderDirections direction) {
-        SimplesCondition<OrderDirections> orderCondition = new SimplesCondition<OrderDirections>(ConditionType.ORDER);
+        SimpleCondition<OrderDirections> orderCondition = new SimpleCondition<OrderDirections>(ConditionType.ORDER);
         orderCondition.setField(field);
         orderCondition.setValue(direction);
         this.conditions.add(orderCondition);

@@ -1,6 +1,7 @@
 package com.app.config;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.env.Environment;
@@ -19,17 +20,28 @@ public class JpaConfig {
     @Autowired
     private Environment environment;
 
+    @Value("${spring.datasource.url}")
+    private String url;
+
+    @Value("${spring.datasource.username}")
+    private String username;
+
+    @Value("${spring.datasource.password}")
+    private String password;
+
+    @Value("${spring.datasource.driverClassName}")
+    private String driver;
+
+    @Value("${spring.hibernate.entitiesPackage}")
+    private String entitiesPackage;
+
     @Bean
     public DataSource dataSource() {
-        String url = environment.getProperty("spring.datasource.url");
-        String username = environment.getProperty("spring.datasource.username");
-        String password = environment.getProperty("spring.datasource.password");
-
         DriverManagerDataSource dataSource = new DriverManagerDataSource();
-        dataSource.setDriverClassName("com.mysql.cj.jdbc.Driver");
-        dataSource.setUrl(url);
-        dataSource.setUsername(username);
-        dataSource.setPassword(password);
+        dataSource.setDriverClassName(this.driver);
+        dataSource.setUrl(this.url);
+        dataSource.setUsername(this.username);
+        dataSource.setPassword(this.password);
         return dataSource;
     }
 
@@ -40,7 +52,7 @@ public class JpaConfig {
 
         LocalContainerEntityManagerFactoryBean factory = new LocalContainerEntityManagerFactoryBean();
         factory.setJpaVendorAdapter(vendorAdapter);
-        factory.setPackagesToScan("com.app.domain.entity");
+        factory.setPackagesToScan(this.entitiesPackage);
         factory.setDataSource(dataSource());
         return factory;
     }

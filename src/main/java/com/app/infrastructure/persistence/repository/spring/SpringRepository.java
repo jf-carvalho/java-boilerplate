@@ -3,24 +3,28 @@ package com.app.infrastructure.persistence.repository.spring;
 import com.app.domain.exception.EntityNotFoundException;
 import com.app.domain.exception.IllegalUpdateException;
 import com.app.infrastructure.persistence.criteria.*;
+import com.app.infrastructure.persistence.exceptions.IllegalCriteriaTypeException;
 import com.app.infrastructure.persistence.repository.RepositoryInterface;
 import jakarta.persistence.Query;
 import jakarta.transaction.Transactional;
-import org.springframework.beans.factory.annotation.Autowired;
 import jakarta.persistence.EntityManager;
 
-import java.lang.reflect.Field;
-import java.lang.reflect.Modifier;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.List;
 import java.util.stream.Collectors;
 
 public class SpringRepository<E> implements RepositoryInterface<E> {
-    @Autowired
-    private EntityManager entityManager;
+
+    private final EntityManager entityManager;
 
     private Class<E> entityClass;
 
     private int equalsConditionsStrings = 0;
+
+    public SpringRepository(EntityManager entityManager) {
+        this.entityManager = entityManager;
+    }
 
     @Override
     public void setEntity(Class<E> entityClass) {
@@ -29,7 +33,7 @@ public class SpringRepository<E> implements RepositoryInterface<E> {
 
     @Override
     @Transactional
-    public E getById(int id) {
+    public E getById(Long id) {
         E entity = this.entityManager.find(this.entityClass, id);
 
         if (entity == null) {
@@ -55,34 +59,26 @@ public class SpringRepository<E> implements RepositoryInterface<E> {
 
     @Override
     @Transactional
-    public E update(int id, E entity) {
-        E foundEntity = this.getById(id);
+    public E update(Long id, E entity) {
+        this.getById(id);
 
-        Field[] fields = entity.getClass().getDeclaredFields();
-
-        for (Field field : fields) {
-            if (!field.canAccess(entity) || Modifier.isStatic(field.getModifiers()) || Modifier.isFinal(field.getModifiers())) {
-                continue;
-            }
-
-            field.setAccessible(true);
-
-            try {
-                Object newValue = field.get(entity);
-                field.set(foundEntity, newValue);
-            } catch (IllegalAccessException e) {
-                throw new IllegalUpdateException("Trying to update illegal field " + field.getName() + " from " + this.entityClass.getSimpleName() + ".");
-            }
+        try {
+            Method method = this.entityClass.getMethod("setId", Long.class);
+            method.invoke(entity, id);
+        } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
+            throw new IllegalUpdateException("Cannot update " + this.entityClass.getSimpleName() + " because method setId does not exist or is not accessible");
         }
 
-        return foundEntity;
+        entityManager.merge(entity);
+
+        return entity;
     }
 
     @Override
     @Transactional
-    public boolean delete(int id) {
+    public boolean delete(Long id) {
         E entity = this.getById(id);
-        this.entityManager.remove(entity);
+        entityManager.remove(entity);
 
         return true;
     }
@@ -111,17 +107,17 @@ public class SpringRepository<E> implements RepositoryInterface<E> {
         return (List<E>) query.getResultList();
     }
 
-    public String translateCriteriaConditionToJPQL(ConditionInterface<?> condition) {
+    private String translateCriteriaConditionToJPQL(ConditionInterface<?> condition) {
         switch (condition.getType()) {
             case ConditionType.EQUALS:
-                return this.translateEquals((SimplesCondition<?>) condition);
+                return this.translateEquals((SimpleCondition<?>) condition);
             case ConditionType.LIKE:
-                return this.translateLike((SimplesCondition<?>) condition);
+                return this.translateLike((SimpleCondition<?>) condition);
             case ConditionType.ORDER:
-                return this.translateOrder((SimplesCondition<OrderDirections>) condition);
+                return this.translateOrder((SimpleCondition<OrderDirections>) condition);
         }
 
-        return "";
+        throw new IllegalCriteriaTypeException("Criteria " + condition.getType().name() + " not found");
     }
 
     private Query addConditionToQuery(Query query, ConditionInterface<?> condition) {
@@ -138,7 +134,7 @@ public class SpringRepository<E> implements RepositoryInterface<E> {
         return query;
     }
 
-    private String translateEquals(SimplesCondition<?> condition) {
+    private String translateEquals(SimpleCondition<?> condition) {
         String statementInitial = "WHERE";
 
         if (this.equalsConditionsStrings != 0) {
@@ -149,7 +145,7 @@ public class SpringRepository<E> implements RepositoryInterface<E> {
         return statementInitial + " " + condition.getField() + " = :" + condition.getField();
     }
 
-    private String translateLike(SimplesCondition<?> condition) {
+    private String translateLike(SimpleCondition<?> condition) {
         String statementInitial = "WHERE";
 
         if (this.equalsConditionsStrings != 0) {
@@ -160,7 +156,7 @@ public class SpringRepository<E> implements RepositoryInterface<E> {
         return statementInitial + " " + condition.getField() + " LIKE :" + condition.getField();
     }
 
-    private String translateOrder(SimplesCondition<OrderDirections> condition) {
+    private String translateOrder(SimpleCondition<OrderDirections> condition) {
         String statementInitial = "ORDER BY";
 
         return statementInitial + " " + condition.getField() + " " + condition.getValue().name();
