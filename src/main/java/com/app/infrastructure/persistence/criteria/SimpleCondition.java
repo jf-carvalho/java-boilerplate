@@ -1,11 +1,11 @@
 package com.app.infrastructure.persistence.criteria;
 
-public class SimplesCondition<T> implements ConditionInterface<T> {
+public class SimpleCondition<T> implements ConditionInterface<T> {
     private String field;
     private T value;
     private final ConditionType type;
 
-    public SimplesCondition(ConditionType type) {
+    public SimpleCondition(ConditionType type) {
         this.type = type;
     }
 
