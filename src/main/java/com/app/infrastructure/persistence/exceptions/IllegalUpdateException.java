@@ -1,4 +1,4 @@
-package com.app.domain.exception;
+package com.app.infrastructure.persistence.exceptions;
 
 public class IllegalUpdateException extends RuntimeException{
     public IllegalUpdateException(String message) {

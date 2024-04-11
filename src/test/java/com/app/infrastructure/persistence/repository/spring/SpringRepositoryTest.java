@@ -1,19 +1,16 @@
 package com.app.infrastructure.persistence.repository.spring;
 
-import com.app.domain.exception.EntityNotFoundException;
-import com.app.domain.exception.IllegalUpdateException;
+import com.app.infrastructure.persistence.exceptions.EntityNotFoundException;
+import com.app.infrastructure.persistence.exceptions.IllegalUpdateException;
 import com.app.infrastructure.persistence.criteria.*;
-import com.app.infrastructure.persistence.exceptions.IllegalCriteriaTypeException;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.TypedQuery;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.MockedStatic;
 import org.mockito.MockitoAnnotations;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 

@@ -1,7 +1,7 @@
 package com.app.infrastructure.persistence.repository.spring;
 
-import com.app.domain.exception.EntityNotFoundException;
-import com.app.domain.exception.IllegalUpdateException;
+import com.app.infrastructure.persistence.exceptions.EntityNotFoundException;
+import com.app.infrastructure.persistence.exceptions.IllegalUpdateException;
 import com.app.infrastructure.persistence.criteria.*;
 import com.app.infrastructure.persistence.exceptions.IllegalCriteriaTypeException;
 import com.app.infrastructure.persistence.repository.RepositoryInterface;
