@@ -1,7 +1,7 @@
 package com.app.config;
 
 import com.app.application.service.UserService;
-import com.app.domain.entity.User;
+import com.app.infrastructure.persistence.entity.User;
 import com.app.infrastructure.persistence.repository.RepositoryInterface;
 import com.app.infrastructure.persistence.repository.spring.SpringRepository;
 import jakarta.persistence.EntityManager;

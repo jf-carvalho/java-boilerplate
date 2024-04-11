@@ -1,4 +1,4 @@
-package com.app.domain.entity;
+package com.app.infrastructure.persistence.entity;
 
 import jakarta.persistence.*;
 
@@ -45,16 +45,7 @@ public class User {
         this.email = email;
     }
 
-    public String getPassword() {
-        return password;
-    }
-
     public void setPassword(String password) {
         this.password = password;
-    }
-
-    @Override
-    public String toString() {
-        return "User: [name] " + this.getName() + " [email] " + this.getEmail();
     }
 }

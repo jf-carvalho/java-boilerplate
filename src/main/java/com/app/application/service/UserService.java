@@ -1,6 +1,6 @@
 package com.app.application.service;
 
-import com.app.domain.entity.User;
+import com.app.infrastructure.persistence.entity.User;
 import com.app.infrastructure.persistence.repository.RepositoryInterface;
 
 public class UserService {
