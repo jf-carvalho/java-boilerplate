@@ -7,10 +7,13 @@ import com.app.application.exception.IncorrectPasswordException;
 import com.app.application.exception.ResourceNotFound;
 import com.app.infrastructure.persistence.criteria.Criteria;
 import com.app.infrastructure.persistence.entity.User;
+import com.app.infrastructure.persistence.exceptions.EntityNotFoundException;
 import com.app.infrastructure.persistence.repository.RepositoryInterface;
 import com.app.infrastructure.security.hasher.HasherInterface;
 
+import javax.swing.text.html.parser.Entity;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 public class UserService {
@@ -29,7 +32,14 @@ public class UserService {
             throw new ResourceNotFound("User with id " + id + "not found.");
         }
 
-        return new UserResponseDTO(user.getId(), user.getName(), user.getEmail());
+        return new UserResponseDTO(
+                user.getId(),
+                user.getName(),
+                user.getEmail(),
+                user.getCreatedAt(),
+                user.getUpdatedAt(),
+                user.getDeletedAt()
+        );
     }
 
     public List<UserResponseDTO> getAll() {
@@ -38,7 +48,14 @@ public class UserService {
         List<UserResponseDTO> usersDTOs = new ArrayList<>();
 
         users.forEach(user -> {
-            UserResponseDTO dto = new UserResponseDTO(user.getId(), user.getName(), user.getEmail());
+            UserResponseDTO dto = new UserResponseDTO(
+                    user.getId(),
+                    user.getName(),
+                    user.getEmail(),
+                    user.getCreatedAt(),
+                    user.getUpdatedAt(),
+                    user.getDeletedAt()
+            );
             usersDTOs.add(dto);
         });
 
@@ -68,7 +85,10 @@ public class UserService {
         return new UserResponseDTO(
                 savedUser.getId(),
                 savedUser.getName(),
-                savedUser.getEmail()
+                savedUser.getEmail(),
+                savedUser.getCreatedAt(),
+                savedUser.getUpdatedAt(),
+                savedUser.getDeletedAt()
         );
     }
 
@@ -92,7 +112,10 @@ public class UserService {
         return new UserResponseDTO(
                 savedUser.getId(),
                 savedUser.getName(),
-                savedUser.getEmail()
+                savedUser.getEmail(),
+                savedUser.getCreatedAt(),
+                savedUser.getUpdatedAt(),
+                savedUser.getDeletedAt()
         );
     }
 
@@ -129,9 +152,44 @@ public class UserService {
         return new UserResponseDTO(
                 savedUser.getId(),
                 savedUser.getName(),
-                savedUser.getEmail()
+                savedUser.getEmail(),
+                savedUser.getCreatedAt(),
+                savedUser.getUpdatedAt(),
+                savedUser.getDeletedAt()
         );
     }
 
+    public boolean softDelete(Long userId) {
+        User userToSave = new User(userId, new Date().toString());
 
+        try {
+            userRepository.update(userId, userToSave);
+        } catch (EntityNotFoundException e) {
+            return false;
+        }
+
+        return true;
+    }
+
+    public boolean restoreUser(Long userId) {
+        User userToSave = new User(userId, null);
+
+        try {
+            userRepository.update(userId, userToSave);
+        } catch (EntityNotFoundException e) {
+            return false;
+        }
+
+        return true;
+    }
+
+    public boolean deleteUser(Long userId) {
+        try {
+            userRepository.delete(userId);
+        } catch (EntityNotFoundException e) {
+            return false;
+        }
+
+        return true;
+    }
 }

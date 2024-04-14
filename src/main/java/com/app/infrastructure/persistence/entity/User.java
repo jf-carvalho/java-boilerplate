@@ -1,6 +1,8 @@
 package com.app.infrastructure.persistence.entity;
 
 import jakarta.persistence.*;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 
 @Entity
 @Table(name = "users")
@@ -11,6 +13,38 @@ public class User {
     private String name;
     private String email;
     private String password;
+
+    @CreationTimestamp
+    private String createdAt;
+
+    @UpdateTimestamp
+    private String updatedAt;
+
+    private String deletedAt;
+
+    public String getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(String createdAt) {
+        this.createdAt = createdAt;
+    }
+
+    public String getUpdatedAt() {
+        return updatedAt;
+    }
+
+    public void setUpdatedAt(String updatedAt) {
+        this.updatedAt = updatedAt;
+    }
+
+    public String getDeletedAt() {
+        return deletedAt;
+    }
+
+    public void setDeletedAt(String deletedAt) {
+        this.deletedAt = deletedAt;
+    }
 
     public User() {
     }
@@ -32,6 +66,11 @@ public class User {
         this.name = name;
         this.email = email;
         this.password = password;
+    }
+
+    public User(Long id, String deletedAt) {
+        this.id = id;
+        this.deletedAt = deletedAt;
     }
 
     public Long getId() {

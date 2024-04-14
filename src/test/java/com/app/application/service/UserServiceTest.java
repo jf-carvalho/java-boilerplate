@@ -3,10 +3,12 @@ package com.app.application.service;
 import com.app.application.dto.user.UpdatePasswordDTO;
 import com.app.application.dto.user.UserRequestDTO;
 import com.app.application.dto.user.UserResponseDTO;
+import com.app.application.exception.IncorrectPasswordException;
 import com.app.application.exception.ResourceNotFound;
 import com.app.domain.exception.UserException;
 import com.app.infrastructure.persistence.criteria.Criteria;
 import com.app.infrastructure.persistence.entity.User;
+import com.app.infrastructure.persistence.exceptions.EntityNotFoundException;
 import com.app.infrastructure.persistence.repository.RepositoryInterface;
 import com.app.infrastructure.security.hasher.HasherInterface;
 import org.junit.jupiter.api.BeforeEach;
@@ -164,5 +166,87 @@ public class UserServiceTest {
         );
 
         userService.updatePassword(updatePasswordDTO);
+    }
+
+    @Test
+    public void shouldNotUpdatePassword_withInvalidUserEmail() {
+        when(userRepository.getByFilter(any(Criteria.class))).thenReturn(new ArrayList<>());
+
+        UpdatePasswordDTO updatePasswordDTO = new UpdatePasswordDTO(
+                "jdoe@domain.com",
+                "123456",
+                "Password1"
+        );
+
+        assertThrows(
+                ResourceNotFound.class,
+                () -> userService.updatePassword(updatePasswordDTO),
+                "User with provided email not found."
+        );
+    }
+
+    @Test
+    public void shouldNotUpdatePassword_withIncorrectPassword() {
+        User foundUser = new User(1L, "John Doe", "jdoe@domain.com", "1234657");
+
+        List<User> matchingUsers = new ArrayList<User>();
+        matchingUsers.add(foundUser);
+
+        when(userRepository.getByFilter(any(Criteria.class))).thenReturn(matchingUsers);
+
+        when(hasherInterface.checkHash(any(String.class), any(String.class))).thenReturn(false);
+
+        UpdatePasswordDTO updatePasswordDTO = new UpdatePasswordDTO(
+                "jdoe@domain.com",
+                "123456",
+                "Password1"
+        );
+
+        assertThrows(
+                IncorrectPasswordException.class,
+                () -> userService.updatePassword(updatePasswordDTO)
+        );
+    }
+
+    @Test
+    public void shouldSoftDeleteUser() {
+        when(userRepository.update(any(Long.class), any(User.class))).thenReturn(new User());
+
+        assertTrue(userService.softDelete(1L));
+    }
+
+    @Test
+    public void shouldNotSoftDeleteUser() {
+        when(userRepository.update(any(Long.class), any(User.class))).thenThrow(EntityNotFoundException.class);
+
+        assertFalse(userService.softDelete(1L));
+    }
+
+    @Test
+    public void shouldRestoreUser() {
+        when(userRepository.update(any(Long.class), any(User.class))).thenReturn(new User());
+
+        assertTrue(userService.restoreUser(1L));
+    }
+
+    @Test
+    public void shouldNotRestoreUser() {
+        when(userRepository.update(any(Long.class), any(User.class))).thenThrow(EntityNotFoundException.class);
+
+        assertFalse(userService.restoreUser(1L));
+    }
+
+    @Test
+    public void shouldDeleteUser() {
+        when(userRepository.delete(any(Long.class))).thenReturn(true);
+
+        assertTrue(userService.deleteUser(1L));
+    }
+
+    @Test
+    public void shouldNotDeleteUser() {
+        when(userRepository.delete(any(Long.class))).thenThrow(EntityNotFoundException.class);
+
+        assertFalse(userService.deleteUser(1L));
     }
 }
