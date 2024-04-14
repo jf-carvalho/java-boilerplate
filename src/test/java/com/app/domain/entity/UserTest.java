@@ -90,6 +90,10 @@ public class UserTest {
     static Stream<Arguments> testUpdateData() {
         return Stream.of(
                 Arguments.of(
+                        new User("", "", ""),
+                        "User id is required."
+                ),
+                Arguments.of(
                         new User(1L, "", ""),
                         "User name must not be empty or blank."
                 ),
@@ -110,5 +114,25 @@ public class UserTest {
                         "User email is not valid."
                 )
         );
+    }
+
+    @Test
+    public void shouldBeValidForPasswordUpdate_withValidPassword() {
+        User user = new User(
+                1L,
+                "Password1"
+        );
+
+        assertTrue(user.validateNewPassword());
+    }
+
+    @Test
+    public void shouldNotBeValidForPasswordUpdate_withInvalidPassword() {
+        User user = new User(
+                1L,
+                "asd"
+        );
+
+        assertThrows(UserException.class, user::validateNewPassword, "User password should contain at least: 8 characters, 1 uppercase character, 1 lowercase character and 1 digit.");
     }
 }

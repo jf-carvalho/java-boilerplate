@@ -8,9 +8,21 @@ import java.util.regex.Pattern;
 
 public class User {
     private Long id;
-    private final String name;
+    private String name;
     private String email;
     private String password;
+
+    public String getName() {
+        return name;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public String getPassword() {
+        return this.password;
+    }
 
     public User(String name, String email, String password) {
         this.name = name;
@@ -24,6 +36,11 @@ public class User {
         this.email = email;
     }
 
+    public User(Long id, String password) {
+        this.id = id;
+        this.password = password;
+    }
+
     public boolean validateCreate() {
         this.validateName(this.name);
         this.validateEmail(this.email);
@@ -33,10 +50,24 @@ public class User {
     }
 
     public boolean validateUpdate() {
-        this.validateName(name);
+        this.validateId(this.id);
+        this.validateName(this.name);
         this.validateEmail(this.email);
 
         return true;
+    }
+
+    public boolean validateNewPassword() {
+        this.validateId(this.id);
+        this.validatePassword(this.password);
+
+        return true;
+    }
+
+    private void validateId(Long id) {
+        if (id == null) {
+            throw new UserException("User id is required.");
+        }
     }
 
     private void validateName(String name) {
