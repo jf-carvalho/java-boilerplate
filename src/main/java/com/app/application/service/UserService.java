@@ -12,6 +12,7 @@ import com.app.infrastructure.persistence.repository.RepositoryInterface;
 import com.app.infrastructure.security.hasher.HasherInterface;
 
 import javax.swing.text.html.parser.Entity;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -101,11 +102,15 @@ public class UserService {
 
         user.validateUpdate();
 
-        User userPersistenceEntity = new User(
-                userId,
-                user.getName(),
-                user.getEmail()
-        );
+        User userPersistenceEntity = userRepository.getById(userId);
+
+        if (user.getName() != null) {
+            userPersistenceEntity.setName(user.getName());
+        }
+
+        if (user.getEmail() != null) {
+            userPersistenceEntity.setEmail(user.getEmail());
+        }
 
         User savedUser = userRepository.update(userId, userPersistenceEntity);
 
@@ -146,7 +151,10 @@ public class UserService {
         String passwordSalt = hasherInterface.getSalt();
         String hashedPassword = hasherInterface.getHash(updatePasswordDTO.newPassword(), passwordSalt);
 
-        User userToSave = new User(user.getId(), user.getName(), user.getEmail(), hashedPassword);
+        User userToSave = userRepository.getById(user.getId());
+
+        userToSave.setPassword(hashedPassword);
+
         User savedUser = userRepository.update(user.getId(), userToSave);
 
         return new UserResponseDTO(
@@ -160,7 +168,13 @@ public class UserService {
     }
 
     public boolean softDelete(Long userId) {
-        User userToSave = new User(userId, new Date().toString());
+        User userToSave = userRepository.getById(userId);
+
+        Date currentDate = new Date();
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSSSSS");
+        String formattedDate = dateFormat.format(currentDate);
+
+        userToSave.setDeletedAt(formattedDate);
 
         try {
             userRepository.update(userId, userToSave);
@@ -172,7 +186,9 @@ public class UserService {
     }
 
     public boolean restoreUser(Long userId) {
-        User userToSave = new User(userId, null);
+        User userToSave = userRepository.getById(userId);
+
+        userToSave.setDeletedAt(null);
 
         try {
             userRepository.update(userId, userToSave);

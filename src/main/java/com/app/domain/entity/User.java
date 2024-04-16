@@ -51,8 +51,14 @@ public class User {
 
     public boolean validateUpdate() {
         this.validateId(this.id);
-        this.validateName(this.name);
-        this.validateEmail(this.email);
+
+        if (this.name != null) {
+            this.validateName(this.name);
+        }
+
+        if (this.email != null) {
+            this.validateEmail(this.email);
+        }
 
         return true;
     }

@@ -9,6 +9,7 @@ import jakarta.persistence.Query;
 import jakarta.transaction.Transactional;
 import jakarta.persistence.EntityManager;
 
+import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.List;
@@ -60,18 +61,30 @@ public class SpringRepository<E> implements RepositoryInterface<E> {
     @Override
     @Transactional
     public E update(Long id, E entity) {
-        this.getById(id);
+        E existingEntity  = this.getById(id);
 
-        try {
-            Method method = this.entityClass.getMethod("setId", Long.class);
-            method.invoke(entity, id);
-        } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
-            throw new IllegalUpdateException("Cannot update " + this.entityClass.getSimpleName() + " because method setId does not exist or is not accessible");
+        entityManager.merge(existingEntity);
+
+        updateEntityValues(existingEntity, entity);
+
+        return existingEntity;
+    }
+
+    private void updateEntityValues(E existingEntity, E updatedEntity) {
+        Field[] fields = existingEntity.getClass().getDeclaredFields();
+        for (Field field : fields) {
+            if (field.getName().equalsIgnoreCase("id")) {
+                continue;
+            }
+
+            try {
+                field.setAccessible(true);
+                Object updatedValue = field.get(updatedEntity);
+                field.set(existingEntity, updatedValue);
+            } catch (IllegalAccessException e) {
+                throw new IllegalUpdateException(e.getMessage());
+            }
         }
-
-        entityManager.merge(entity);
-
-        return entity;
     }
 
     @Override

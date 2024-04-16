@@ -15,11 +15,14 @@ public class User {
     private String password;
 
     @CreationTimestamp
+    @Column(name = "created_at")
     private String createdAt;
 
     @UpdateTimestamp
+    @Column(name = "updated_at")
     private String updatedAt;
 
+    @Column(name = "deleted_at")
     private String deletedAt;
 
     public String getCreatedAt() {
@@ -68,6 +71,16 @@ public class User {
         this.password = password;
     }
 
+    public User(Long id, String name, String email, String password, String createdAt, String updatedAt, String deletedAt) {
+        this.id = id;
+        this.name = name;
+        this.email = email;
+        this.password = password;
+        this.createdAt = createdAt;
+        this.updatedAt = updatedAt;
+        this.deletedAt = deletedAt;
+    }
+
     public User(Long id, String deletedAt) {
         this.id = id;
         this.deletedAt = deletedAt;
@@ -85,8 +98,16 @@ public class User {
         return name;
     }
 
+    public void setName(String name) {
+        this.name = name;
+    }
+
     public String getEmail() {
         return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
     }
 
     public void setPassword(String password) {
