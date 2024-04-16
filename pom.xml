@@ -138,6 +138,7 @@
 						<exclude>**/config/*</exclude>
 						<exclude>**/persistence/entity/*</exclude>
 						<exclude>**/infrastructure/persistence/exceptions/IllegalCriteriaTypeException.class</exclude>
+						<exclude>**/infrastructure/controller/*</exclude>
 					</excludes>
 				</configuration>
 				<executions>

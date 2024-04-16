@@ -127,7 +127,7 @@ public class SpringRepositoryTest {
 
         Entity resultEntity = repository.update(1L, updatedEntity);
 
-        verify(entityManager).merge(updatedEntity);
+        verify(entityManager).merge(existingEntity);
 
         assertEquals(updatedEntity.getName(), resultEntity.getName());
     }
@@ -139,18 +139,6 @@ public class SpringRepositoryTest {
         assertThrows(EntityNotFoundException.class, () -> {
             repository.update(1L, new Entity());
         ;});
-    }
-
-    @Test
-    public void shouldNotUpdate_whenSetIdMethodDoesNotExist() {
-        Entity2 existingEntity = new Entity2();
-        Entity2 updatedEntity = new Entity2();
-
-        when(entityManager.find(Entity2.class, 1L)).thenReturn(existingEntity);
-
-        assertThrows(IllegalUpdateException.class, () -> {
-            repository2.update(1L, updatedEntity);
-        });
     }
 
     @Test

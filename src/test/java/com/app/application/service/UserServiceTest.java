@@ -13,12 +13,16 @@ import com.app.infrastructure.persistence.repository.RepositoryInterface;
 import com.app.infrastructure.security.hasher.HasherInterface;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -115,13 +119,13 @@ public class UserServiceTest {
         assertThrows(UserException.class, () -> {userService.create(userRequestDTO);});
     }
 
-    @Test
-    public void shouldUpdateUser() {
+    @ParameterizedTest
+    @MethodSource("testValidUpdateData")
+    public void shouldUpdateUser(UserRequestDTO userRequestDTO) {
         User savedUser = new User(1L, "John Doe", "jdoe@domain.com");
 
+        when(userRepository.getById(any(Long.class))).thenReturn(savedUser);
         when(userRepository.update(any(Long.class), any(User.class))).thenReturn(savedUser);
-
-        UserRequestDTO userRequestDTO = new UserRequestDTO("John Doe", "jdoe@domain.com", "Password1");
 
         UserResponseDTO result = userService.update(1L, userRequestDTO);
 
@@ -130,6 +134,32 @@ public class UserServiceTest {
         assertEquals(savedUser.getId(), result.id());
         assertEquals(savedUser.getName(), result.name());
         assertEquals(savedUser.getEmail(), result.email());
+    }
+
+    static Stream<Arguments> testValidUpdateData() {
+        return Stream.of(
+                Arguments.of(
+                        new UserRequestDTO(
+                                "John Doe",
+                                "jdoe@domain.com",
+                                "Password1"
+                        )
+                ),
+                Arguments.of(
+                        new UserRequestDTO(
+                                null,
+                                "jdoe@domain.com",
+                                "Password1"
+                        )
+                ),
+                Arguments.of(
+                        new UserRequestDTO(
+                                "John Doe",
+                                null,
+                                "Password1"
+                        )
+                )
+        );
     }
 
     @Test
@@ -157,6 +187,7 @@ public class UserServiceTest {
 
         User savedUser = new User(1L, "John Doe", "jdoe@domain.com");
 
+        when(userRepository.getById(any(Long.class))).thenReturn(savedUser);
         when(userRepository.update(any(Long.class), any(User.class))).thenReturn(savedUser);
 
         UpdatePasswordDTO updatePasswordDTO = new UpdatePasswordDTO(
@@ -210,28 +241,32 @@ public class UserServiceTest {
 
     @Test
     public void shouldSoftDeleteUser() {
-        when(userRepository.update(any(Long.class), any(User.class))).thenReturn(new User());
+        when(userRepository.getById(any(Long.class))).thenReturn(new User(1L, null));
 
         assertTrue(userService.softDelete(1L));
+
+        verify(userRepository).update(any(Long.class), any(User.class));
     }
 
     @Test
     public void shouldNotSoftDeleteUser() {
-        when(userRepository.update(any(Long.class), any(User.class))).thenThrow(EntityNotFoundException.class);
+        when(userRepository.getById(any(Long.class))).thenThrow(EntityNotFoundException.class);
 
         assertFalse(userService.softDelete(1L));
     }
 
     @Test
     public void shouldRestoreUser() {
-        when(userRepository.update(any(Long.class), any(User.class))).thenReturn(new User());
+        when(userRepository.getById(any(Long.class))).thenReturn(new User());
 
         assertTrue(userService.restoreUser(1L));
+
+        verify(userRepository).update(any(Long.class), any(User.class));
     }
 
     @Test
     public void shouldNotRestoreUser() {
-        when(userRepository.update(any(Long.class), any(User.class))).thenThrow(EntityNotFoundException.class);
+        when(userRepository.getById(any(Long.class))).thenThrow(EntityNotFoundException.class);
 
         assertFalse(userService.restoreUser(1L));
     }

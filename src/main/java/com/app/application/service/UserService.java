@@ -168,15 +168,15 @@ public class UserService {
     }
 
     public boolean softDelete(Long userId) {
-        User userToSave = userRepository.getById(userId);
-
-        Date currentDate = new Date();
-        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSSSSS");
-        String formattedDate = dateFormat.format(currentDate);
-
-        userToSave.setDeletedAt(formattedDate);
-
         try {
+            User userToSave = userRepository.getById(userId);
+
+            Date currentDate = new Date();
+            SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSSSSS");
+            String formattedDate = dateFormat.format(currentDate);
+
+            userToSave.setDeletedAt(formattedDate);
+
             userRepository.update(userId, userToSave);
         } catch (EntityNotFoundException e) {
             return false;
@@ -186,11 +186,11 @@ public class UserService {
     }
 
     public boolean restoreUser(Long userId) {
-        User userToSave = userRepository.getById(userId);
+       try {
+           User userToSave = userRepository.getById(userId);
 
-        userToSave.setDeletedAt(null);
+           userToSave.setDeletedAt(null);
 
-        try {
             userRepository.update(userId, userToSave);
         } catch (EntityNotFoundException e) {
             return false;

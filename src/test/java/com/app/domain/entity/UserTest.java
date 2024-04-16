@@ -70,15 +70,36 @@ public class UserTest {
         );
     }
 
-    @Test
-    public void shouldBeValidForUpdate_withValidFields() {
-        User user = new User(
-                1L,
-                "John Doe",
-                "jdoe@domain.com"
-        );
-
+    @ParameterizedTest
+    @MethodSource("testValidUpdateData")
+    public void shouldBeValidForUpdate_withValidFields(User user) {
         assertTrue(user.validateUpdate());
+    }
+
+    static Stream<Arguments> testValidUpdateData() {
+        return Stream.of(
+                Arguments.of(
+                        new User(
+                                1L,
+                                "John Doe",
+                                "jdoe@domain.com"
+                        )
+                ),
+                Arguments.of(
+                        new User(
+                                1L,
+                                "John Doe",
+                                null
+                        )
+                ),
+                Arguments.of(
+                        new User(
+                                1L,
+                                null,
+                                null
+                        )
+                )
+        );
     }
 
     @ParameterizedTest
