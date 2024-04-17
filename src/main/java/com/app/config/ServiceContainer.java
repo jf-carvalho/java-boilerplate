@@ -4,6 +4,9 @@ import com.app.application.service.UserService;
 import com.app.infrastructure.persistence.entity.User;
 import com.app.infrastructure.persistence.repository.RepositoryInterface;
 import com.app.infrastructure.persistence.repository.spring.SpringRepository;
+import com.app.infrastructure.security.auth.Auth0JWTHandler;
+import com.app.infrastructure.security.auth.JWTAuthInterface;
+import com.app.infrastructure.security.auth.RSAAlgorithm;
 import com.app.infrastructure.security.hasher.HasherInterface;
 import jakarta.persistence.EntityManager;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,5 +31,11 @@ public class ServiceContainer {
         RepositoryInterface<User> userRepository = this.repository();
         userRepository.setEntity(User.class);
         return new UserService(userRepository, hasherInterface);
+    }
+
+    @Bean
+    public JWTAuthInterface authInterface() {
+        RSAAlgorithm rsaAlgorithm = new RSAAlgorithm();
+        return new Auth0JWTHandler(rsaAlgorithm.getAlgorithm());
     }
 }
