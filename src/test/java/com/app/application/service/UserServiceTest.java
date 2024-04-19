@@ -6,19 +6,19 @@ import com.app.application.dto.user.UserResponseDTO;
 import com.app.application.exception.IncorrectPasswordException;
 import com.app.application.exception.ResourceNotFound;
 import com.app.domain.exception.UserException;
+import com.app.infrastructure.persistence.criteria.ConditionType;
 import com.app.infrastructure.persistence.criteria.Criteria;
 import com.app.infrastructure.persistence.entity.User;
 import com.app.infrastructure.persistence.exceptions.EntityNotFoundException;
 import com.app.infrastructure.persistence.repository.RepositoryInterface;
 import com.app.infrastructure.security.hasher.HasherInterface;
+import org.apache.commons.validator.Arg;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
+import org.mockito.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -105,7 +105,14 @@ public class UserServiceTest {
 
         verify(hasherInterface).getSalt();
         verify(hasherInterface).getHash("Password1", "random_salt");
-        verify(userRepository).create(any(User.class));
+
+        ArgumentCaptor<User> argument = ArgumentCaptor.forClass(User.class);
+
+        verify(userRepository).create(argument.capture());
+
+        assertEquals("John Doe", argument.getValue().getName());
+        assertEquals("jdoe@domain.com", argument.getValue().getEmail());
+        assertEquals("tH1$k1nd4L00k$l1k34h4$h", argument.getValue().getPassword());
 
         assertEquals(savedUser.getId(), result.id());
         assertEquals(savedUser.getName(), result.name());
@@ -197,6 +204,14 @@ public class UserServiceTest {
         );
 
         userService.updatePassword(updatePasswordDTO);
+
+        ArgumentCaptor<Criteria> argument = ArgumentCaptor.forClass(Criteria.class);
+
+        verify(userRepository).getByFilter(argument.capture());
+
+        assertEquals("email", argument.getValue().getConditions().getFirst().getField());
+        assertEquals("jdoe@domain.com", argument.getValue().getConditions().getFirst().getValue());
+        assertEquals(ConditionType.EQUALS, argument.getValue().getConditions().getFirst().getType());
     }
 
     @Test
@@ -283,5 +298,36 @@ public class UserServiceTest {
         when(userRepository.delete(any(Long.class))).thenThrow(EntityNotFoundException.class);
 
         assertFalse(userService.deleteUser(1L));
+    }
+
+    @Test
+    public void shouldGetUserByEmail() {
+        Criteria criteria = new Criteria();
+        criteria.equals("email", "jdoe@domain.com");
+
+        List<User> users = new ArrayList<User>();
+        User user = new User(1L, "John Doe", "jdoe@domain.com");
+        users.add(user);
+
+        when(userRepository.getByFilter(any(Criteria.class))).thenReturn(users);
+
+        UserResponseDTO foundUser = userService.getByEmail("jdoe@domain.com");
+
+        ArgumentCaptor<Criteria> argument = ArgumentCaptor.forClass(Criteria.class);
+
+        verify(userRepository).getByFilter(argument.capture());
+
+        assertEquals("email", argument.getValue().getConditions().getFirst().getField());
+        assertEquals("jdoe@domain.com", argument.getValue().getConditions().getFirst().getValue());
+        assertEquals(ConditionType.EQUALS, argument.getValue().getConditions().getFirst().getType());
+
+        assertEquals(foundUser.email(), user.getEmail());
+    }
+
+    @Test
+    public void shouldGetUserByEmail_whenNotExists() {
+        when(userRepository.getByFilter(any(Criteria.class))).thenReturn(new ArrayList<>());
+
+        assertThrows(ResourceNotFound.class, () -> userService.getByEmail("jdoe@domain.com"));
     }
 }

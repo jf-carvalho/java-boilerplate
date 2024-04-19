@@ -208,4 +208,19 @@ public class UserService {
 
         return true;
     }
+
+    public UserResponseDTO getByEmail(String email) {
+        Criteria criteria = new Criteria();
+        criteria.equals("email", email);
+
+        List<User> matchingUsers = userRepository.getByFilter(criteria);
+
+        if (matchingUsers.isEmpty()) {
+            throw new ResourceNotFound("User with provided email not found.");
+        }
+
+        User user = matchingUsers.getFirst();
+
+        return new UserResponseDTO(user.getId(), user.getName(), user.getEmail(), user.getCreatedAt(), user.getUpdatedAt(), user.getDeletedAt());
+    }
 }
