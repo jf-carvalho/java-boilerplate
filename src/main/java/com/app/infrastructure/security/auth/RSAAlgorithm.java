@@ -6,6 +6,8 @@ import com.auth0.jwt.algorithms.Algorithm;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
+import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.security.KeyFactory;
@@ -15,6 +17,7 @@ import java.security.interfaces.RSAPublicKey;
 import java.security.spec.InvalidKeySpecException;
 import java.security.spec.PKCS8EncodedKeySpec;
 import java.security.spec.X509EncodedKeySpec;
+import java.util.Base64;
 
 public class RSAAlgorithm {
     private final Algorithm algorithm;
@@ -47,15 +50,16 @@ public class RSAAlgorithm {
 
         File keysDirectory = new File(keyFilesURL.getFile());
 
-        return keysDirectory.getAbsolutePath();
+        return URLDecoder.decode(keysDirectory.getAbsolutePath(), StandardCharsets.UTF_8);
     }
 
     private RSAPublicKey getPublicKey(KeyFactory keyFactory) {
-        String publicKeyPath = this.getKeysPath() + File.separator + "public_key.pem";
+        String publicKeyPath = this.getKeysPath() + File.separator + "public-key.crt";
 
-        byte[] publicKeyBytes = new byte[0];
+        byte[] publicKeyBytes = null;
 
         try {
+//            publicKeyBytes = this.extractPublicKeyBytes(publicKeyPath);
             publicKeyBytes = Files.readAllBytes(Paths.get(publicKeyPath));
         } catch (IOException e) {
             throw new RuntimeException(e);
@@ -75,12 +79,13 @@ public class RSAAlgorithm {
     }
 
     private RSAPrivateKey getPrivateKey(KeyFactory keyFactory) {
-        String privateKeyPath = this.getKeysPath() + File.separator + "private_key.pem";
+        String privateKeyPath = this.getKeysPath() + File.separator + "private-key.pem";
 
         byte[] privateKeyBytes = new byte[0];
 
         try {
-            privateKeyBytes = Files.readAllBytes(Paths.get(privateKeyPath));
+//            privateKeyBytes = Files.readAllBytes(Paths.get(privateKeyPath));
+            privateKeyBytes = this.extractPrivateKeyBytes(privateKeyPath);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -95,5 +100,33 @@ public class RSAAlgorithm {
         }
 
         return privateKey;
+    }
+
+    private byte[] extractPublicKeyBytes(String keyPath) throws IOException {
+        byte[] keyPEMBytes = Files.readAllBytes(Paths.get(keyPath));
+
+        String keyPEM = new String(keyPEMBytes);
+        String pemHeader = "-----BEGIN PUBLIC KEY-----";
+        String pemFooter = "-----END PUBLIC KEY-----";
+        int start = keyPEM.indexOf(pemHeader) + pemHeader.length();
+        int end = keyPEM.indexOf(pemFooter);
+        keyPEM = keyPEM.substring(start, end);
+        keyPEM = keyPEM.replaceAll("\\s+", "");
+
+        return Base64.getDecoder().decode(keyPEM);
+    }
+
+    private byte[] extractPrivateKeyBytes(String keyPath) throws IOException {
+        byte[] keyPEMBytes = Files.readAllBytes(Paths.get(keyPath));
+
+        String keyPEM = new String(keyPEMBytes);
+        String pemHeader = "-----BEGIN PRIVATE KEY-----";
+        String pemFooter = "-----END PRIVATE KEY-----";
+        int start = keyPEM.indexOf(pemHeader) + pemHeader.length();
+        int end = keyPEM.indexOf(pemFooter);
+        keyPEM = keyPEM.substring(start, end);
+        keyPEM = keyPEM.replaceAll("\\s+", "");
+
+        return Base64.getDecoder().decode(keyPEM);
     }
 }

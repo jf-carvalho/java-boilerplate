@@ -1,6 +1,5 @@
 package com.app.infrastructure.cache;
 
-import com.app.infrastructure.cache.CacheInterface;
 import com.app.infrastructure.cache.exception.CacheException;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
@@ -28,5 +27,16 @@ public class JedisCache implements CacheInterface {
         } catch (Exception e) {
             throw new CacheException("Failed trying to get object from cache: " + e.getMessage());
         }
+    }
+
+    @Override
+    public boolean add(String key, String value) throws CacheException {
+        try (Jedis jedis = jedisPool.getResource()) {
+            jedis.sadd(key, value);
+        } catch (Exception e) {
+            throw new CacheException("Failed trying to add object to cache: " + e.getMessage());
+        }
+
+        return true;
     }
 }

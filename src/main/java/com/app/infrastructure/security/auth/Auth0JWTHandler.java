@@ -1,15 +1,17 @@
 package com.app.infrastructure.security.auth;
 
+import com.app.application.dto.auth.JwtClaimDTO;
 import com.app.infrastructure.security.auth.exception.AuthException;
 import com.auth0.jwt.JWT;
+import com.auth0.jwt.JWTCreator;
 import com.auth0.jwt.JWTVerifier;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.exceptions.JWTCreationException;
 import com.auth0.jwt.exceptions.JWTVerificationException;
-import org.springframework.beans.factory.annotation.Autowired;
+
+import java.util.List;
 
 public class Auth0JWTHandler implements JWTAuthInterface {
-    @Autowired
     private final Algorithm algorithm;
 
     public Auth0JWTHandler(Algorithm algorithm) {
@@ -17,11 +19,14 @@ public class Auth0JWTHandler implements JWTAuthInterface {
     }
 
     @Override
-    public String createToken() {
+    public String createToken(List<JwtClaimDTO> claims) {
         try {
-            return JWT.create()
-                    .withIssuer("auth0")
-                    .sign(this.algorithm);
+            JWTCreator.Builder token = JWT.create()
+                    .withIssuer("auth0");
+
+            claims.forEach(claim -> token.withClaim(claim.key(), claim.value()));
+
+            return token.sign(this.algorithm);
         } catch (JWTCreationException | IllegalArgumentException exception) {
             throw new AuthException("JWT token creation failed.");
         }

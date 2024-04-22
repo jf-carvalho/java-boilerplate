@@ -3,6 +3,7 @@ package com.app.application.service;
 import com.app.application.dto.user.UpdatePasswordDTO;
 import com.app.application.dto.user.UserRequestDTO;
 import com.app.application.dto.user.UserResponseDTO;
+import com.app.application.dto.user.UserResponseWithPasswordDTO;
 import com.app.application.exception.IncorrectPasswordException;
 import com.app.application.exception.ResourceNotFound;
 import com.app.domain.exception.UserException;
@@ -311,7 +312,7 @@ public class UserServiceTest {
 
         when(userRepository.getByFilter(any(Criteria.class))).thenReturn(users);
 
-        UserResponseDTO foundUser = userService.getByEmail("jdoe@domain.com");
+        UserResponseWithPasswordDTO foundUser = userService.getByEmail("jdoe@domain.com");
 
         ArgumentCaptor<Criteria> argument = ArgumentCaptor.forClass(Criteria.class);
 

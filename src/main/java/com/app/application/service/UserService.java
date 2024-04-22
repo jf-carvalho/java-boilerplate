@@ -3,6 +3,7 @@ package com.app.application.service;
 import com.app.application.dto.user.UpdatePasswordDTO;
 import com.app.application.dto.user.UserRequestDTO;
 import com.app.application.dto.user.UserResponseDTO;
+import com.app.application.dto.user.UserResponseWithPasswordDTO;
 import com.app.application.exception.IncorrectPasswordException;
 import com.app.application.exception.ResourceNotFound;
 import com.app.infrastructure.persistence.criteria.Criteria;
@@ -209,7 +210,7 @@ public class UserService {
         return true;
     }
 
-    public UserResponseDTO getByEmail(String email) {
+    public UserResponseWithPasswordDTO getByEmail(String email) {
         Criteria criteria = new Criteria();
         criteria.equals("email", email);
 
@@ -221,6 +222,13 @@ public class UserService {
 
         User user = matchingUsers.getFirst();
 
-        return new UserResponseDTO(user.getId(), user.getName(), user.getEmail(), user.getCreatedAt(), user.getUpdatedAt(), user.getDeletedAt());
+        return new UserResponseWithPasswordDTO(
+                user.getId(),
+                user.getName(),
+                user.getEmail(),
+                user.getPassword(),
+                user.getCreatedAt(),
+                user.getUpdatedAt(),
+                user.getDeletedAt());
     }
 }
