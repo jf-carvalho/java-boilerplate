@@ -37,4 +37,4 @@ build/
 src/main/resources/META-INF/persistence.xml
 flyway.conf
 src/main/resources/application.properties
-src/main/resources/keys/private_key.pem
+src/main/resources/keys/*
