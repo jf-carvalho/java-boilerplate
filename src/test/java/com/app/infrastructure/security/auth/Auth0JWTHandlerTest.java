@@ -5,6 +5,8 @@ import com.auth0.jwt.algorithms.Algorithm;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.util.ArrayList;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 public class Auth0JWTHandlerTest {
@@ -15,12 +17,12 @@ public class Auth0JWTHandlerTest {
     public void setup() {
         Algorithm algorithm = Algorithm.HMAC256("secret");
         jwtHandler = new Auth0JWTHandler(algorithm);
-        validToken = jwtHandler.createToken();
+        validToken = jwtHandler.createToken(new ArrayList<>());
     }
 
     @Test
     public void testCreateTokenSuccess() {
-        String token = jwtHandler.createToken();
+        String token = jwtHandler.createToken(new ArrayList<>());
         assertNotNull(token);
         assertFalse(token.isEmpty());
     }
@@ -28,7 +30,7 @@ public class Auth0JWTHandlerTest {
     @Test
     public void testCreateTokenFailure() {
         Auth0JWTHandler invalidJwtHandler = new Auth0JWTHandler(null);
-        assertThrows(AuthException.class, invalidJwtHandler::createToken, "JWT token creation failed.");
+        assertThrows(AuthException.class, () -> invalidJwtHandler.createToken(new ArrayList<>()), "JWT token creation failed.");
     }
 
     @Test

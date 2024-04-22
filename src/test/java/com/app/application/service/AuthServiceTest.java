@@ -1,18 +1,26 @@
 package com.app.application.service;
 
+import com.app.application.dto.auth.JwtClaimDTO;
 import com.app.application.dto.auth.LoginRequestDTO;
 import com.app.application.dto.auth.LoginResponseDTO;
 import com.app.application.dto.user.UserResponseWithPasswordDTO;
 import com.app.application.exception.ResourceNotFound;
 import com.app.application.exception.UnauthenticatedException;
 import com.app.infrastructure.cache.CacheInterface;
+import com.app.infrastructure.persistence.entity.User;
 import com.app.infrastructure.security.auth.JWTAuthInterface;
 import com.app.infrastructure.security.hasher.HasherInterface;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 
 import static org.mockito.Mockito.*;
 import static org.junit.jupiter.api.Assertions.*;
@@ -53,12 +61,29 @@ public class AuthServiceTest {
         when(userService.getByEmail("jdoe@domain.com")).thenReturn(foundUser);
         when(hasher.checkHash("some_hashed_password", "Password1")).thenReturn(true);
         when(cache.get(foundUser.id().toString() + "_current_token")).thenReturn(null);
-        when(auth.createToken()).thenReturn("valid_json_web_token");
+
+        when(auth.createToken(any(ArrayList.class))).thenReturn("valid_json_web_token");
 
         LoginRequestDTO loginDTO = new LoginRequestDTO("jdoe@domain.com", "Password1");
         authService.attemptLogin(loginDTO);
 
         verify(cache).set(foundUser.id().toString() + "_current_token", "valid_json_web_token");
+
+        ArgumentCaptor<ArrayList<JwtClaimDTO>> argument = ArgumentCaptor.forClass(ArrayList.class);
+
+        verify(auth).createToken(argument.capture());
+
+        Date currentDate = new Date();
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSSSSS");
+        String formattedDate = dateFormat.format(currentDate);
+
+        List<JwtClaimDTO> claims = new ArrayList<>();
+        claims.add(new JwtClaimDTO("userId", foundUser.id().toString()));
+        claims.add(new JwtClaimDTO("createdAt", formattedDate));
+
+        assertEquals(argument.getValue().getFirst().key(), claims.getFirst().key());
+        assertEquals(argument.getValue().getFirst().value(), claims.getFirst().value());
+        assertEquals(argument.getValue().get(1).key(), claims.get(1).key());
     }
 
     @Test
@@ -67,7 +92,7 @@ public class AuthServiceTest {
 
         LoginRequestDTO loginDTO = new LoginRequestDTO("jdoe@domain.com", "Password1");
 
-        assertThrows(ResourceNotFound.class, () -> authService.attemptLogin(loginDTO));
+        assertThrows(UnauthenticatedException.class, () -> authService.attemptLogin(loginDTO));
     }
 
     @Test
@@ -105,7 +130,8 @@ public class AuthServiceTest {
         when(hasher.checkHash("some_hashed_password", "Password1")).thenReturn(true);
         when(cache.get(foundUser.id().toString() + "_current_token")).thenReturn("current_valid_jwt");
         when(cache.add("auth_tokens_blacklist", "current_valid_jwt")).thenReturn(true);
-        when(auth.createToken()).thenReturn("valid_json_web_token");
+
+        when(auth.createToken(any(ArrayList.class))).thenReturn("valid_json_web_token");
 
         LoginRequestDTO loginDTO = new LoginRequestDTO("jdoe@domain.com", "Password1");
         LoginResponseDTO loginResponseDTO = authService.attemptLogin(loginDTO);
