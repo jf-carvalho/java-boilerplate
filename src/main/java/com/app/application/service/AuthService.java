@@ -12,6 +12,7 @@ import com.app.infrastructure.security.hasher.HasherInterface;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
@@ -49,18 +50,35 @@ public class AuthService {
             this.cache.add("auth_tokens_blacklist", currentUserToken);
         }
 
+        List<JwtClaimDTO> claims = this.getClaims(user);
+
+        String token = auth.createToken(claims);
+
+        this.cache.set(user.id() + "_current_token", token);
+
+        return new LoginResponseDTO(token);
+    }
+
+    private List<JwtClaimDTO> getClaims(UserResponseWithPasswordDTO user) {
+        List<JwtClaimDTO> claims = new ArrayList<>();
+        claims.add(new JwtClaimDTO("userId", user.id().toString()));
+
         Date currentDate = new Date();
         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSSSSS");
         String formattedDate = dateFormat.format(currentDate);
 
-        List<JwtClaimDTO> claims = new ArrayList<>();
-        claims.add(new JwtClaimDTO("userId", user.id().toString()));
         claims.add(new JwtClaimDTO("createdAt", formattedDate));
 
-        String token = auth.createToken(claims);
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(currentDate);
 
-        this.cache.set(user.id().toString() + "_current_token", token);
+        calendar.add(Calendar.HOUR_OF_DAY, 1);
 
-        return new LoginResponseDTO(token);
+        Date expirationDate = calendar.getTime();
+        String formattedExpirationDate = dateFormat.format(expirationDate);
+
+        claims.add(new JwtClaimDTO("expiresAt", formattedExpirationDate));
+
+        return claims;
     }
 }

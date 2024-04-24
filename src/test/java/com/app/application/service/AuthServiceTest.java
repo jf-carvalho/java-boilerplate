@@ -80,10 +80,12 @@ public class AuthServiceTest {
         List<JwtClaimDTO> claims = new ArrayList<>();
         claims.add(new JwtClaimDTO("userId", foundUser.id().toString()));
         claims.add(new JwtClaimDTO("createdAt", formattedDate));
+        claims.add(new JwtClaimDTO("expiresAt", formattedDate));
 
         assertEquals(argument.getValue().getFirst().key(), claims.getFirst().key());
         assertEquals(argument.getValue().getFirst().value(), claims.getFirst().value());
         assertEquals(argument.getValue().get(1).key(), claims.get(1).key());
+        assertEquals(argument.getValue().get(2).key(), claims.get(2).key());
     }
 
     @Test
