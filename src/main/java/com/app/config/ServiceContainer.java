@@ -10,6 +10,7 @@ import com.app.infrastructure.persistence.repository.spring.SpringRepository;
 import com.app.infrastructure.security.auth.Auth0JWTHandler;
 import com.app.infrastructure.security.auth.JWTAuthInterface;
 import com.app.infrastructure.security.auth.RSAAlgorithm;
+import com.app.infrastructure.security.auth.exception.AuthException;
 import com.app.infrastructure.security.hasher.HasherInterface;
 import com.app.infrastructure.security.hasher.SpringBcryptHasher;
 import jakarta.persistence.EntityManager;
@@ -17,6 +18,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import redis.clients.jedis.JedisPool;
+
+import java.io.File;
+import java.net.URL;
+import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
+import java.security.KeyFactory;
+import java.security.NoSuchAlgorithmException;
 
 @Configuration
 public class ServiceContainer {
@@ -42,7 +50,20 @@ public class ServiceContainer {
 
     @Bean
     public JWTAuthInterface authInterface() {
-        RSAAlgorithm rsaAlgorithm = new RSAAlgorithm();
+        KeyFactory keyFactory = null;
+
+        try {
+            keyFactory = KeyFactory.getInstance("RSA");
+        } catch (NoSuchAlgorithmException e) {
+            throw new AuthException("Failed trying to instantiate key factory: " + e.getMessage());
+        }
+
+        URL keyFilesURL = Auth0JWTHandler.class.getClassLoader().getResource("keys");
+
+        File keysDir = new File(keyFilesURL.getFile());
+        String keysDecodeDir = URLDecoder.decode(keysDir.getAbsolutePath(), StandardCharsets.UTF_8);
+
+        RSAAlgorithm rsaAlgorithm = new RSAAlgorithm(keyFactory, keysDecodeDir);
         return new Auth0JWTHandler(rsaAlgorithm.getAlgorithm());
     }
 

@@ -57,4 +57,21 @@ public class JedisCacheTest {
 
         assertThrows(CacheException.class, () -> jedisCache.get("foo"));
     }
+
+    @Test
+    public void shouldPutObjectInCacheSet() {
+        Jedis jedisMock = mock(Jedis.class);
+        when(jedisPool.getResource()).thenReturn(jedisMock);
+
+        jedisCache.add("foo", "bar");
+
+        verify(jedisMock).sadd(any(String.class), any(String.class));
+    }
+
+    @Test
+    public void shouldNotPutObjectInCacheSet() {
+        when(jedisPool.getResource()).thenReturn(null);
+
+        assertThrows(CacheException.class, () -> jedisCache.add("foo", "bar"));
+    }
 }

@@ -1,17 +1,13 @@
 package com.app.infrastructure.security.auth;
 
-import com.app.infrastructure.security.auth.exception.AuthException;
+import com.app.infrastructure.security.auth.exception.AlgorithmException;
 import com.auth0.jwt.algorithms.Algorithm;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.URL;
-import java.net.URLDecoder;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.security.KeyFactory;
-import java.security.NoSuchAlgorithmException;
 import java.security.interfaces.RSAPrivateKey;
 import java.security.interfaces.RSAPublicKey;
 import java.security.spec.InvalidKeySpecException;
@@ -21,45 +17,25 @@ import java.util.Base64;
 
 public class RSAAlgorithm {
     private final Algorithm algorithm;
+    private final String keysDir;
+    private final KeyFactory keyFactory;
 
-    public RSAAlgorithm() {
-        KeyFactory keyFactory = null;
+    public RSAAlgorithm(KeyFactory keyFactory, String keysDir) {
+        this.keysDir = keysDir;
+        this.keyFactory = keyFactory;
 
-        try {
-            keyFactory = KeyFactory.getInstance("RSA");
-        } catch (NoSuchAlgorithmException e) {
-            throw new AuthException("Failed trying to instantiate key factory: " + e.getMessage());
-        }
-
-        RSAPublicKey publicKey = this.getPublicKey(keyFactory);
-        RSAPrivateKey privateKey = this.getPrivateKey(keyFactory);
+        RSAPublicKey publicKey = this.getPublicKey();
+        RSAPrivateKey privateKey = this.getPrivateKey();
 
         this.algorithm = Algorithm.RSA256(publicKey, privateKey);
     }
 
-    public Algorithm getAlgorithm() {
-        return this.algorithm;
-    }
-
-    private String getKeysPath() {
-        URL keyFilesURL = Auth0JWTHandler.class.getClassLoader().getResource("keys");
-
-        if (keyFilesURL == null) {
-            throw new AuthException("No keys found in path");
-        }
-
-        File keysDirectory = new File(keyFilesURL.getFile());
-
-        return URLDecoder.decode(keysDirectory.getAbsolutePath(), StandardCharsets.UTF_8);
-    }
-
-    private RSAPublicKey getPublicKey(KeyFactory keyFactory) {
-        String publicKeyPath = this.getKeysPath() + File.separator + "public-key.crt";
+    private RSAPublicKey getPublicKey() {
+        String publicKeyPath = this.keysDir + File.separator + "public-key.crt";
 
         byte[] publicKeyBytes = null;
 
         try {
-//            publicKeyBytes = this.extractPublicKeyBytes(publicKeyPath);
             publicKeyBytes = Files.readAllBytes(Paths.get(publicKeyPath));
         } catch (IOException e) {
             throw new RuntimeException(e);
@@ -70,21 +46,20 @@ public class RSAAlgorithm {
         RSAPublicKey publicKey = null;
 
         try {
-            publicKey = (RSAPublicKey) keyFactory.generatePublic(publicKeySpec);
+            publicKey = (RSAPublicKey) this.keyFactory.generatePublic(publicKeySpec);
         } catch (InvalidKeySpecException e) {
-            throw new RuntimeException(e);
+            throw new AlgorithmException("Failed trying to generate public key: " + e.getMessage());
         }
 
         return publicKey;
     }
 
-    private RSAPrivateKey getPrivateKey(KeyFactory keyFactory) {
-        String privateKeyPath = this.getKeysPath() + File.separator + "private-key.pem";
+    private RSAPrivateKey getPrivateKey() {
+        String privateKeyPath = this.keysDir + File.separator + "private-key.pem";
 
         byte[] privateKeyBytes = new byte[0];
 
         try {
-//            privateKeyBytes = Files.readAllBytes(Paths.get(privateKeyPath));
             privateKeyBytes = this.extractPrivateKeyBytes(privateKeyPath);
         } catch (IOException e) {
             throw new RuntimeException(e);
@@ -94,26 +69,12 @@ public class RSAAlgorithm {
         RSAPrivateKey privateKey = null;
 
         try {
-            privateKey = (RSAPrivateKey) keyFactory.generatePrivate(privateKeySpec);
+            privateKey = (RSAPrivateKey) this.keyFactory.generatePrivate(privateKeySpec);
         } catch (InvalidKeySpecException e) {
-            throw new RuntimeException(e);
+            throw new AlgorithmException("Failed trying to generate private key: " + e.getMessage());
         }
 
         return privateKey;
-    }
-
-    private byte[] extractPublicKeyBytes(String keyPath) throws IOException {
-        byte[] keyPEMBytes = Files.readAllBytes(Paths.get(keyPath));
-
-        String keyPEM = new String(keyPEMBytes);
-        String pemHeader = "-----BEGIN PUBLIC KEY-----";
-        String pemFooter = "-----END PUBLIC KEY-----";
-        int start = keyPEM.indexOf(pemHeader) + pemHeader.length();
-        int end = keyPEM.indexOf(pemFooter);
-        keyPEM = keyPEM.substring(start, end);
-        keyPEM = keyPEM.replaceAll("\\s+", "");
-
-        return Base64.getDecoder().decode(keyPEM);
     }
 
     private byte[] extractPrivateKeyBytes(String keyPath) throws IOException {
@@ -128,5 +89,9 @@ public class RSAAlgorithm {
         keyPEM = keyPEM.replaceAll("\\s+", "");
 
         return Base64.getDecoder().decode(keyPEM);
+    }
+
+    public Algorithm getAlgorithm() {
+        return this.algorithm;
     }
 }

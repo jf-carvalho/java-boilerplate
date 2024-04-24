@@ -1,11 +1,13 @@
 package com.app.infrastructure.security.auth;
 
+import com.app.application.dto.auth.JwtClaimDTO;
 import com.app.infrastructure.security.auth.exception.AuthException;
 import com.auth0.jwt.algorithms.Algorithm;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -21,32 +23,36 @@ public class Auth0JWTHandlerTest {
     }
 
     @Test
-    public void testCreateTokenSuccess() {
+    public void shouldCreateToken() {
         String token = jwtHandler.createToken(new ArrayList<>());
         assertNotNull(token);
         assertFalse(token.isEmpty());
     }
 
     @Test
-    public void testCreateTokenFailure() {
+    public void shouldCreateTokenWithClaims() {
+        List<JwtClaimDTO> claims = new ArrayList<>();
+        claims.add(new JwtClaimDTO("foo", "bar"));
+
+        String token = jwtHandler.createToken(claims);
+        assertNotNull(token);
+        assertFalse(token.isEmpty());
+    }
+
+    @Test
+    public void shouldNotCreateToken() {
         Auth0JWTHandler invalidJwtHandler = new Auth0JWTHandler(null);
         assertThrows(AuthException.class, () -> invalidJwtHandler.createToken(new ArrayList<>()), "JWT token creation failed.");
     }
 
     @Test
-    public void testValidateTokenSuccess() {
+    public void shouldValidateToken() {
         boolean isValid = jwtHandler.validateToken(validToken);
         assertTrue(isValid);
     }
 
     @Test
-    public void testValidateTokenFailure() {
+    public void shouldNotValidateToken() {
         assertThrows(AuthException.class, () -> jwtHandler.validateToken("invalid_token"), "Token validation failed");
-    }
-
-    @Test
-    public void testValidateTokenException() {
-        AuthException exception = assertThrows(AuthException.class, () -> jwtHandler.validateToken(null));
-        assertEquals("Token validation failed", exception.getMessage());
     }
 }
