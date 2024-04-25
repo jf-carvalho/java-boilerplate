@@ -2,8 +2,10 @@ package com.app.config;
 
 import com.app.application.service.AuthService;
 import com.app.application.service.UserService;
+import com.app.application.util.AuthInterceptorHandler;
 import com.app.infrastructure.cache.CacheInterface;
 import com.app.infrastructure.cache.JedisCache;
+import com.app.infrastructure.interceptor.AuthInterceptor;
 import com.app.infrastructure.persistence.entity.User;
 import com.app.infrastructure.persistence.repository.RepositoryInterface;
 import com.app.infrastructure.persistence.repository.spring.SpringRepository;
@@ -82,5 +84,15 @@ public class ServiceContainer {
                 hasherInterface(),
                 cacheInterface()
         );
+    }
+
+    @Bean
+    public AuthInterceptorHandler authInterceptorHandler() {
+        return new AuthInterceptorHandler(this.authInterface(), this.cacheInterface());
+    }
+
+    @Bean
+    public AuthInterceptor authInterceptor() {
+        return new AuthInterceptor(authInterceptorHandler());
     }
 }

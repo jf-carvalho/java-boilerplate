@@ -8,11 +8,16 @@ import com.auth0.jwt.JWTVerifier;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.exceptions.JWTCreationException;
 import com.auth0.jwt.exceptions.JWTVerificationException;
+import com.auth0.jwt.interfaces.Claim;
+import com.auth0.jwt.interfaces.DecodedJWT;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 public class Auth0JWTHandler implements JWTAuthInterface {
     private final Algorithm algorithm;
+    private DecodedJWT decodedJWT;
 
     public Auth0JWTHandler(Algorithm algorithm) {
         this.algorithm = algorithm;
@@ -34,16 +39,36 @@ public class Auth0JWTHandler implements JWTAuthInterface {
 
     @Override
     public boolean validateToken(String token) {
+        DecodedJWT decodedJWT;
+
         try {
             JWTVerifier verifier = JWT.require(this.algorithm)
                     .withIssuer("auth0")
                     .build();
 
-            verifier.verify(token);
+            decodedJWT = verifier.verify(token);
+            this.decodedJWT = decodedJWT;
         } catch (JWTVerificationException exception){
             throw new AuthException("Token validation failed");
         }
 
         return true;
+    }
+
+    public List<JwtClaimDTO> getClaims() {
+        Map<String, Claim> claims = this.decodedJWT.getClaims();
+
+        List<JwtClaimDTO> claimsDTOs = new ArrayList<>();
+
+        for (Map.Entry<String, Claim> entry : claims.entrySet()) {
+            String claimName = entry.getKey();
+            Claim claimValue = entry.getValue();
+
+            JwtClaimDTO claimDTO = new JwtClaimDTO(claimName, claimValue.asString());
+
+            claimsDTOs.add(claimDTO);
+        }
+
+        return claimsDTOs;
     }
 }

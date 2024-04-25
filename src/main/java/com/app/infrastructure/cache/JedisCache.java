@@ -4,6 +4,8 @@ import com.app.infrastructure.cache.exception.CacheException;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
 
+import java.util.Set;
+
 public class JedisCache implements CacheInterface {
     private final JedisPool jedisPool;
 
@@ -38,5 +40,14 @@ public class JedisCache implements CacheInterface {
         }
 
         return true;
+    }
+
+    @Override
+    public Set<String> getList(String key) throws CacheException {
+        try (Jedis jedis = jedisPool.getResource()) {
+            return jedis.smembers(key);
+        } catch (Exception e) {
+            throw new CacheException("Failed trying to get list members from cache: " + e.getMessage());
+        }
     }
 }
