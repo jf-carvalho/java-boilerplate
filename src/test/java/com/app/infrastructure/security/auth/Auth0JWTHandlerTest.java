@@ -55,4 +55,18 @@ public class Auth0JWTHandlerTest {
     public void shouldNotValidateToken() {
         assertThrows(AuthException.class, () -> jwtHandler.validateToken("invalid_token"), "Token validation failed");
     }
+
+    @Test
+    public void shouldGetClaims() {
+        jwtHandler.validateToken(validToken);
+        List<JwtClaimDTO> claims = this.jwtHandler.getClaims();
+
+        assertEquals(claims.getFirst().key(), "iss");
+        assertEquals(claims.getFirst().value(), "auth0");
+    }
+
+    @Test
+    public void shouldNotGetClaims() {
+        assertThrows(AuthException.class, this.jwtHandler::getClaims, "JWT must be decoded in order to get it's claims.");
+    }
 }

@@ -160,9 +160,11 @@
 				<configuration>
 					<excludes>
 						<exclude>**/config/*</exclude>
+						<exclude>com/app/ApiApplication.class</exclude>
 						<exclude>**/persistence/entity/*</exclude>
 						<exclude>**/infrastructure/persistence/exceptions/IllegalCriteriaTypeException.class</exclude>
 						<exclude>**/infrastructure/controller/*</exclude>
+						<exclude>**/infrastructure/interceptor/*</exclude>
 					</excludes>
 				</configuration>
 				<executions>

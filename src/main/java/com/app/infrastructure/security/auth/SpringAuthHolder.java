@@ -1,6 +1,7 @@
 package com.app.infrastructure.security.auth;
 
 import com.app.domain.entity.User;
+import com.app.infrastructure.security.auth.exception.AuthException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -18,26 +19,31 @@ public class SpringAuthHolder implements AuthHolderInterface {
         SecurityContextHolder.getContext().setAuthentication(authenticationToken);
     }
 
-    @Override
-    public AuthHolderInterface getAuth() {
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+    public Authentication getAuth() {
 
-        if (auth == null) {
-            return null;
-        }
-
-        this.auth = auth;
-        return this;
+        return SecurityContextHolder.getContext().getAuthentication();
     }
 
     @Override
     public User getUser() {
-        return (User) this.auth.getPrincipal();
+        Authentication auth = this.getAuth();
+
+        if (auth == null) {
+            throw new AuthException("There is no authenticated user");
+        }
+
+        return (User) auth.getPrincipal();
     }
 
     @Override
     public String getToken() {
-        return (String) this.auth.getCredentials();
+        Authentication auth = this.getAuth();
+
+        if (auth == null) {
+            throw new AuthException("There is no authenticated user");
+        }
+
+        return (String) auth.getCredentials();
     }
 
 

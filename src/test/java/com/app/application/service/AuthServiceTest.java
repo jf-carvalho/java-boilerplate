@@ -7,6 +7,7 @@ import com.app.application.dto.user.UserResponseWithPasswordDTO;
 import com.app.application.exception.ResourceNotFound;
 import com.app.application.exception.UnauthenticatedException;
 import com.app.infrastructure.cache.CacheInterface;
+import com.app.infrastructure.security.auth.AuthHolderInterface;
 import com.app.infrastructure.security.auth.JWTAuthInterface;
 import com.app.infrastructure.security.hasher.HasherInterface;
 import org.junit.jupiter.api.BeforeEach;
@@ -37,6 +38,9 @@ public class AuthServiceTest {
     @Mock
     private CacheInterface cache;
 
+    @Mock
+    private AuthHolderInterface authHolder;
+
     @InjectMocks
     private AuthService authService;
 
@@ -66,7 +70,7 @@ public class AuthServiceTest {
         LoginRequestDTO loginDTO = new LoginRequestDTO("jdoe@domain.com", "Password1");
         authService.attemptLogin(loginDTO);
 
-        verify(cache).set(foundUser.id().toString() + "_current_token", "valid_json_web_token");
+        verify(cache).set(foundUser.id() + "_current_token", "valid_json_web_token");
 
         ArgumentCaptor<ArrayList<JwtClaimDTO>> argument = ArgumentCaptor.forClass(ArrayList.class);
 
@@ -138,16 +142,16 @@ public class AuthServiceTest {
         LoginResponseDTO loginResponseDTO = authService.attemptLogin(loginDTO);
         assertEquals(loginResponseDTO.accessToken(), "valid_json_web_token");
 
-        verify(cache).set(foundUser.id().toString() + "_current_token", "valid_json_web_token");
+        verify(cache).set(foundUser.id() + "_current_token", "valid_json_web_token");
     }
 
     @Test
     public void shouldLogout_withValidToken() {
+        when(this.authHolder.getToken()).thenReturn("jwt_token");
+        when(this.cache.add("auth_tokens_blacklist", "jwt_token")).thenReturn(true);
 
-    }
+        boolean loggedOut = authService.logout();
 
-    @Test
-    public void shouldNotLogout_withInvalidToken() {
-
+        assertTrue(loggedOut);
     }
 }

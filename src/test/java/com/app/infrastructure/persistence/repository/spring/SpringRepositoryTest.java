@@ -119,7 +119,7 @@ public class SpringRepositoryTest {
 
     @Test
     public void shouldUpdateEntity_whenExists() {
-        Entity existingEntity = new Entity(1l);
+        Entity existingEntity = new Entity(1L);
         when(entityManager.find(Entity.class, 1L)).thenReturn(existingEntity);
 
         Entity updatedEntity = new Entity(1L);
@@ -138,7 +138,7 @@ public class SpringRepositoryTest {
 
         assertThrows(EntityNotFoundException.class, () -> {
             repository.update(1L, new Entity());
-        ;});
+        });
     }
 
     @Test
@@ -242,6 +242,40 @@ public class SpringRepositoryTest {
 
         Criteria criteria = new Criteria();
         criteria.order("name", OrderDirections.ASC);
+
+        repository.getByFilter(criteria);
+
+        verify(query).getResultList();
+    }
+
+    @Test
+    public void shouldTranslateCriteria_whenUsingNotEquals() {
+        @SuppressWarnings("unchecked")
+        TypedQuery<Entity> query = mock(TypedQuery.class);
+
+        when(entityManager.createQuery("SELECT entity FROM Entity entity WHERE name <> :name", Entity.class)).thenReturn(query);
+        when(query.setParameter("name", "foo")).thenReturn(query);
+
+        Criteria criteria = new Criteria();
+        criteria.notEquals("name", "foo");
+
+        repository.getByFilter(criteria);
+
+        verify(query).getResultList();
+    }
+
+    @Test
+    public void shouldTranslateCriteria_whenUsingMultipleNotEquals() {
+        @SuppressWarnings("unchecked")
+        TypedQuery<Entity> query = mock(TypedQuery.class);
+
+        when(entityManager.createQuery("SELECT entity FROM Entity entity WHERE name <> :name AND id <> :id", Entity.class)).thenReturn(query);
+        when(query.setParameter("name", "foo")).thenReturn(query);
+        when(query.setParameter("id", 1L)).thenReturn(query);
+
+        Criteria criteria = new Criteria();
+        criteria.notEquals("name", "foo");
+        criteria.notEquals("id", 1L);
 
         repository.getByFilter(criteria);
 

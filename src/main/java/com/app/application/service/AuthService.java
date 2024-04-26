@@ -55,7 +55,7 @@ public class AuthService {
 
         String currentUserToken = this.cache.get(user.id().toString() + "_current_token");
 
-        if (currentUserToken != null && !currentUserToken.isEmpty()) {
+        if (currentUserToken != null) {
             this.cache.add("auth_tokens_blacklist", currentUserToken);
         }
 
@@ -92,7 +92,7 @@ public class AuthService {
     }
 
     public boolean logout() {
-        String authToken = this.authHolder.getAuth().getToken();
+        String authToken = this.authHolder.getToken();
 
         this.cache.add("auth_tokens_blacklist", authToken);
 

@@ -56,6 +56,10 @@ public class Auth0JWTHandler implements JWTAuthInterface {
     }
 
     public List<JwtClaimDTO> getClaims() {
+        if (this.decodedJWT == null) {
+            throw new AuthException("JWT must be decoded in order to get it's claims.");
+        }
+
         Map<String, Claim> claims = this.decodedJWT.getClaims();
 
         List<JwtClaimDTO> claimsDTOs = new ArrayList<>();

@@ -126,6 +126,25 @@ public class UserServiceTest {
         assertThrows(UserException.class, () -> {userService.create(userRequestDTO);});
     }
 
+    @Test
+    public void shouldNotCreateUserWithDuplicatedEmail() {
+        UserRequestDTO userRequestDTO = new UserRequestDTO("John Doe", "jdoe@domain.com", "Password1");
+
+        ArgumentCaptor<Criteria> argument = ArgumentCaptor.forClass(Criteria.class);
+
+        List<User> users = new ArrayList<User>();
+        users.add(new User());
+
+        when(userRepository.getByFilter(argument.capture())).thenReturn(users);
+
+        assertThrows(UserException.class, () -> {userService.create(userRequestDTO);}, "There is already an user registered with the provided email.");
+
+        assertEquals(argument.getValue().getConditions().size(), 1);
+        assertEquals(argument.getValue().getConditions().getFirst().getType(), ConditionType.EQUALS);
+        assertEquals(argument.getValue().getConditions().getFirst().getField(), "email");
+        assertEquals(argument.getValue().getConditions().getFirst().getValue(), "jdoe@domain.com");
+    }
+
     @ParameterizedTest
     @MethodSource("testValidUpdateData")
     public void shouldUpdateUser(UserRequestDTO userRequestDTO) {
@@ -174,6 +193,28 @@ public class UserServiceTest {
         UserRequestDTO userRequestDTO = new UserRequestDTO("John Doe", "jdoe@domain.com", "Password1");
 
         assertThrows(UserException.class, () -> userService.update(null, userRequestDTO));
+    }
+
+    @Test
+    public void shouldNotUpdateUserWithDuplicatedEmail() {
+        UserRequestDTO userRequestDTO = new UserRequestDTO("John Doe", "jdoe@domain.com", "Password1");
+
+        ArgumentCaptor<Criteria> argument = ArgumentCaptor.forClass(Criteria.class);
+
+        List<User> users = new ArrayList<User>();
+        users.add(new User());
+
+        when(userRepository.getByFilter(argument.capture())).thenReturn(users);
+
+        assertThrows(UserException.class, () -> {userService.update(1L, userRequestDTO);}, "There is already an user registered with the provided email.");
+
+        assertEquals(argument.getValue().getConditions().size(), 2);
+        assertEquals(argument.getValue().getConditions().getFirst().getType(), ConditionType.EQUALS);
+        assertEquals(argument.getValue().getConditions().getFirst().getField(), "email");
+        assertEquals(argument.getValue().getConditions().getFirst().getValue(), "jdoe@domain.com");
+        assertEquals(argument.getValue().getConditions().get(1).getType(), ConditionType.NOT_EQUALS);
+        assertEquals(argument.getValue().getConditions().get(1).getField(), "id");
+        assertEquals(argument.getValue().getConditions().get(1).getValue(), 1L);
     }
 
     @Test

@@ -105,7 +105,7 @@ public class AuthInterceptorHandler {
         String userId = null;
 
         for (JwtClaimDTO claimDTO : claims) {
-            if ("userId".equals(claimDTO.key()) && !claimDTO.value().isEmpty()) {
+            if ("userId".equals(claimDTO.key())) {
                 userId = claimDTO.value();
             }
         }
