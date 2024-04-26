@@ -27,8 +27,6 @@ public class AuthInterceptor implements HandlerInterceptor {
             this.handler.handle(authTokenHeader);
         } catch(UnauthenticatedException exception) {
             return this.unauthenticated(response);
-        } catch (Exception exception) {
-            return this.serverError(response);
         }
 
         return true;

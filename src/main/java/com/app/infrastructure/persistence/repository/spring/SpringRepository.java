@@ -8,6 +8,7 @@ import com.app.infrastructure.persistence.repository.RepositoryInterface;
 import jakarta.persistence.Query;
 import jakarta.transaction.Transactional;
 import jakarta.persistence.EntityManager;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
@@ -16,7 +17,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 public class SpringRepository<E> implements RepositoryInterface<E> {
-
+    @Autowired
     private final EntityManager entityManager;
 
     private Class<E> entityClass;

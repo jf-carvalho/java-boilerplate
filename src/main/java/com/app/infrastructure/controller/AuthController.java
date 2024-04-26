@@ -6,10 +6,7 @@ import com.app.application.service.AuthService;
 import com.app.application.util.ErrorResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/auth")
@@ -26,6 +23,17 @@ public class AuthController {
             LoginResponseDTO loginResponseDTO = authService.attemptLogin(loginRequestDTO);
 
             return new ResponseEntity<>(loginResponseDTO, HttpStatus.OK);
+        } catch (Exception e) {
+            return new ResponseEntity<>(new ErrorResponse(e.getMessage()), HttpStatus.BAD_REQUEST);
+        }
+    }
+
+    @GetMapping("/logout")
+    public ResponseEntity<?> logout() {
+        try {
+            boolean loggedOut = authService.logout();
+
+            return new ResponseEntity<>(null, HttpStatus.OK);
         } catch (Exception e) {
             return new ResponseEntity<>(new ErrorResponse(e.getMessage()), HttpStatus.BAD_REQUEST);
         }

@@ -13,7 +13,6 @@ import com.app.infrastructure.persistence.entity.User;
 import com.app.infrastructure.persistence.exceptions.EntityNotFoundException;
 import com.app.infrastructure.persistence.repository.RepositoryInterface;
 import com.app.infrastructure.security.hasher.HasherInterface;
-import org.apache.commons.validator.Arg;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -312,7 +311,7 @@ public class UserServiceTest {
 
         when(userRepository.getByFilter(any(Criteria.class))).thenReturn(users);
 
-        UserResponseWithPasswordDTO foundUser = userService.getByEmail("jdoe@domain.com");
+        UserResponseWithPasswordDTO foundUser = userService.getUserForLogin("jdoe@domain.com");
 
         ArgumentCaptor<Criteria> argument = ArgumentCaptor.forClass(Criteria.class);
 
@@ -329,6 +328,6 @@ public class UserServiceTest {
     public void shouldGetUserByEmail_whenNotExists() {
         when(userRepository.getByFilter(any(Criteria.class))).thenReturn(new ArrayList<>());
 
-        assertThrows(ResourceNotFound.class, () -> userService.getByEmail("jdoe@domain.com"));
+        assertThrows(ResourceNotFound.class, () -> userService.getUserForLogin("jdoe@domain.com"));
     }
 }

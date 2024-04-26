@@ -9,9 +9,7 @@ import com.app.infrastructure.interceptor.AuthInterceptor;
 import com.app.infrastructure.persistence.entity.User;
 import com.app.infrastructure.persistence.repository.RepositoryInterface;
 import com.app.infrastructure.persistence.repository.spring.SpringRepository;
-import com.app.infrastructure.security.auth.Auth0JWTHandler;
-import com.app.infrastructure.security.auth.JWTAuthInterface;
-import com.app.infrastructure.security.auth.RSAAlgorithm;
+import com.app.infrastructure.security.auth.*;
 import com.app.infrastructure.security.auth.exception.AuthException;
 import com.app.infrastructure.security.hasher.HasherInterface;
 import com.app.infrastructure.security.hasher.SpringBcryptHasher;
@@ -82,13 +80,24 @@ public class ServiceContainer {
                 authInterface(),
                 userService(),
                 hasherInterface(),
-                cacheInterface()
+                cacheInterface(),
+                authHolder()
         );
     }
 
     @Bean
+    public AuthHolderInterface authHolder(){
+        return new SpringAuthHolder();
+    }
+
+    @Bean
     public AuthInterceptorHandler authInterceptorHandler() {
-        return new AuthInterceptorHandler(this.authInterface(), this.cacheInterface());
+        return new AuthInterceptorHandler(
+                this.authInterface(),
+                this.cacheInterface(),
+                this.userService(),
+                authHolder()
+        );
     }
 
     @Bean

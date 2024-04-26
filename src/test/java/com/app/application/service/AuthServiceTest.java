@@ -7,7 +7,6 @@ import com.app.application.dto.user.UserResponseWithPasswordDTO;
 import com.app.application.exception.ResourceNotFound;
 import com.app.application.exception.UnauthenticatedException;
 import com.app.infrastructure.cache.CacheInterface;
-import com.app.infrastructure.persistence.entity.User;
 import com.app.infrastructure.security.auth.JWTAuthInterface;
 import com.app.infrastructure.security.hasher.HasherInterface;
 import org.junit.jupiter.api.BeforeEach;
@@ -58,7 +57,7 @@ public class AuthServiceTest {
                 null
         );
 
-        when(userService.getByEmail("jdoe@domain.com")).thenReturn(foundUser);
+        when(userService.getUserForLogin("jdoe@domain.com")).thenReturn(foundUser);
         when(hasher.checkHash("some_hashed_password", "Password1")).thenReturn(true);
         when(cache.get(foundUser.id().toString() + "_current_token")).thenReturn(null);
 
@@ -90,7 +89,7 @@ public class AuthServiceTest {
 
     @Test
     public void loginUserNotFoundShouldThrowException() {
-        when(userService.getByEmail("jdoe@domain.com")).thenThrow(ResourceNotFound.class);
+        when(userService.getUserForLogin("jdoe@domain.com")).thenThrow(ResourceNotFound.class);
 
         LoginRequestDTO loginDTO = new LoginRequestDTO("jdoe@domain.com", "Password1");
 
@@ -109,7 +108,7 @@ public class AuthServiceTest {
                 null
         );
 
-        when(userService.getByEmail("jdoe@domain.com")).thenReturn(foundUser);
+        when(userService.getUserForLogin("jdoe@domain.com")).thenReturn(foundUser);
         when(hasher.checkHash("some_hashed_password", "Password1")).thenReturn(false);
 
         LoginRequestDTO loginDTO = new LoginRequestDTO("jdoe@domain.com", "Password1");
@@ -128,7 +127,7 @@ public class AuthServiceTest {
                 null
         );
 
-        when(userService.getByEmail("jdoe@domain.com")).thenReturn(foundUser);
+        when(userService.getUserForLogin("jdoe@domain.com")).thenReturn(foundUser);
         when(hasher.checkHash("some_hashed_password", "Password1")).thenReturn(true);
         when(cache.get(foundUser.id().toString() + "_current_token")).thenReturn("current_valid_jwt");
         when(cache.add("auth_tokens_blacklist", "current_valid_jwt")).thenReturn(true);

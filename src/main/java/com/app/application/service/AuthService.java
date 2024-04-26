@@ -7,6 +7,7 @@ import com.app.application.dto.user.UserResponseWithPasswordDTO;
 import com.app.application.exception.ResourceNotFound;
 import com.app.application.exception.UnauthenticatedException;
 import com.app.infrastructure.cache.CacheInterface;
+import com.app.infrastructure.security.auth.AuthHolderInterface;
 import com.app.infrastructure.security.auth.JWTAuthInterface;
 import com.app.infrastructure.security.hasher.HasherInterface;
 
@@ -21,19 +22,27 @@ public class AuthService {
     private final UserService userService;
     private final HasherInterface hasher;
     private final CacheInterface cache;
+    private final AuthHolderInterface authHolder;
 
-    public AuthService(JWTAuthInterface auth, UserService userService, HasherInterface hasher, CacheInterface cache) {
+    public AuthService(
+            JWTAuthInterface auth,
+            UserService userService,
+            HasherInterface hasher,
+            CacheInterface cache,
+            AuthHolderInterface authHolder
+    ) {
         this.auth = auth;
         this.userService = userService;
         this.hasher = hasher;
         this.cache = cache;
+        this.authHolder = authHolder;
     }
 
     public LoginResponseDTO attemptLogin(LoginRequestDTO loginRequestDTO) throws ResourceNotFound {
         UserResponseWithPasswordDTO user = null;
 
         try {
-            user = this.userService.getByEmail(loginRequestDTO.email());
+            user = this.userService.getUserForLogin(loginRequestDTO.email());
         } catch (ResourceNotFound exception) {
             throw new UnauthenticatedException("Wrong credentials.");
         }
@@ -80,5 +89,13 @@ public class AuthService {
         claims.add(new JwtClaimDTO("expiresAt", formattedExpirationDate));
 
         return claims;
+    }
+
+    public boolean logout() {
+        String authToken = this.authHolder.getAuth().getToken();
+
+        this.cache.add("auth_tokens_blacklist", authToken);
+
+        return true;
     }
 }

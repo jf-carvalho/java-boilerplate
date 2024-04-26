@@ -12,7 +12,6 @@ import com.app.infrastructure.persistence.exceptions.EntityNotFoundException;
 import com.app.infrastructure.persistence.repository.RepositoryInterface;
 import com.app.infrastructure.security.hasher.HasherInterface;
 
-import javax.swing.text.html.parser.Entity;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -210,7 +209,7 @@ public class UserService {
         return true;
     }
 
-    public UserResponseWithPasswordDTO getByEmail(String email) {
+    public UserResponseWithPasswordDTO getUserForLogin(String email) {
         Criteria criteria = new Criteria();
         criteria.equals("email", email);
 
