@@ -23,6 +23,15 @@ public class Criteria {
         return this;
     }
 
+    public <T> Criteria notEquals(String field, T value) {
+        SimpleCondition<T> notEqualsCondition = new SimpleCondition<T>(ConditionType.NOT_EQUALS);
+        notEqualsCondition.setField(field);
+        notEqualsCondition.setValue(value);
+        this.conditions.add(notEqualsCondition);
+
+        return this;
+    }
+
     public <T> Criteria like(String field, T value) {
         SimpleCondition<T> likeCondition = new SimpleCondition<T>(ConditionType.LIKE);
         likeCondition.setField(field);

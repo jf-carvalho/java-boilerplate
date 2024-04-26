@@ -6,6 +6,7 @@ import com.app.application.dto.user.UserResponseDTO;
 import com.app.application.dto.user.UserResponseWithPasswordDTO;
 import com.app.application.exception.IncorrectPasswordException;
 import com.app.application.exception.ResourceNotFound;
+import com.app.domain.exception.UserException;
 import com.app.infrastructure.persistence.criteria.Criteria;
 import com.app.infrastructure.persistence.entity.User;
 import com.app.infrastructure.persistence.exceptions.EntityNotFoundException;
@@ -81,6 +82,8 @@ public class UserService {
                 hashedPassword
         );
 
+        this.validateUniqueEmail(user.getEmail(), null);
+
         User savedUser = userRepository.create(userPersistenceEntity);
 
         return new UserResponseDTO(
@@ -101,6 +104,8 @@ public class UserService {
         );
 
         user.validateUpdate();
+
+        this.validateUniqueEmail(user.getEmail(), userId);
 
         User userPersistenceEntity = userRepository.getById(userId);
 
@@ -229,5 +234,20 @@ public class UserService {
                 user.getCreatedAt(),
                 user.getUpdatedAt(),
                 user.getDeletedAt());
+    }
+
+    private void validateUniqueEmail(String email, Long userId) {
+        Criteria criteria = new Criteria();
+        criteria.equals("email", email);
+
+        if (userId != null) {
+            criteria.notEquals("id", userId);
+        }
+
+        List<User> matchingUsers = userRepository.getByFilter(criteria);
+
+        if (!matchingUsers.isEmpty()) {
+            throw new UserException("There is already an user registered with the provided email.");
+        }
     }
 }

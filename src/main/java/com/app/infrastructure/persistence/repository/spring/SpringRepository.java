@@ -125,6 +125,8 @@ public class SpringRepository<E> implements RepositoryInterface<E> {
         switch (condition.getType()) {
             case ConditionType.EQUALS:
                 return this.translateEquals((SimpleCondition<?>) condition);
+            case ConditionType.NOT_EQUALS:
+                return this.translateNotEquals((SimpleCondition<?>) condition);
             case ConditionType.LIKE:
                 return this.translateLike((SimpleCondition<?>) condition);
             case ConditionType.ORDER:
@@ -137,7 +139,8 @@ public class SpringRepository<E> implements RepositoryInterface<E> {
     private Query addConditionToQuery(Query query, ConditionInterface<?> condition) {
 
         switch (condition.getType()) {
-            case ConditionType.EQUALS:
+            case ConditionType.EQUALS,
+                 ConditionType.NOT_EQUALS:
                 query = query.setParameter(condition.getField(), condition.getValue());
                 break;
             case ConditionType.LIKE:
@@ -157,6 +160,17 @@ public class SpringRepository<E> implements RepositoryInterface<E> {
 
         this.equalsConditionsStrings++;
         return statementInitial + " " + condition.getField() + " = :" + condition.getField();
+    }
+
+    private String translateNotEquals(SimpleCondition<?> condition) {
+        String statementInitial = "WHERE";
+
+        if (this.equalsConditionsStrings != 0) {
+            statementInitial = "AND";
+        }
+
+        this.equalsConditionsStrings++;
+        return statementInitial + " " + condition.getField() + " <> :" + condition.getField();
     }
 
     private String translateLike(SimpleCondition<?> condition) {
