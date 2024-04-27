@@ -10,6 +10,7 @@ This is a template java project. All basic features were design to offer a plug-
 - Generic Repository with Hibernate and Criteria Pattern
 - Tests with JUnit and Jacoco coverage report
 - Database migrations with flyway
+- *ACL is about to be made*
 
 The app was built with the following versions:
 - Java 21
@@ -54,7 +55,7 @@ Now je just need to run tests to see if everything is working smoothly:
 ---
 
 # Exploring the code
-
+*This section of the README file is under construction*
 - Architecture and Spring usage
   - Configuration
   - Dependency injection
