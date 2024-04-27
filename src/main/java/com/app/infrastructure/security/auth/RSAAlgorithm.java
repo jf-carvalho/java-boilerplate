@@ -31,7 +31,7 @@ public class RSAAlgorithm {
     }
 
     private RSAPublicKey getPublicKey() {
-        String publicKeyPath = this.keysDir + File.separator + "public-key.crt";
+        String publicKeyPath = this.keysDir + File.separator + "public-key.pem";
 
         byte[] publicKeyBytes = null;
 
