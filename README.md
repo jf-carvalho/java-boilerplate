@@ -1,10 +1,10 @@
 # Introduction
 
-This is a template Java project. All basic features were designed to offer a plug-and-play development. The main idea was to build a solid, reliable and safe start-point to develop Java REST APIs. To achieve that, concepts of SOLID and Clean Code were applied, such as a Clean Architecture approach.
+This is a template Java project. All basic features were designed to offer a plug-and-play development. The main idea was to build a solid, reliable and safe start-point to develop Java REST APIs. To achieve that, concepts of SOLID and Clean Code and Clean Architecture were applied.
 
-It is always a difficult choice to not hard-code framework pieces into a project. Obviously, the work is more extensive, but it always pays back. The advantage of copying-pasting snippets and getting things running in a few minutes frequently becomes a headache when it comes to new business requirements, need of change and adaptation, upgrading and upscaling. The project becomes a hostage of frameworks and third-party tools. In the other hand, frameworks and plugins offer very handy solutions for a vast of problems. It would be irrational to ignore them all and deliberately choose to never use them. That's why I chose to use various Spring functionalities alongside with lots of other packages solutions, but never making my application strongly depending on them.
+It is always a difficult choice to not hard-code framework features into a project. Obviously, the work is more extensive when you don't - but it always pays back. The advantage of copying-pasting snippets and getting things running in a few minutes frequently becomes a headache when new business requirements are requested. Changing and adapting are challenging enough tasks, such as upgrading and scaling applications. Then the project becomes a hostage of frameworks and third-party tools and tasks that were already hard become impossible. In the other hand, frameworks and libraries offer very handy solutions for a vast of problems. It would be irrational to ignore them all and deliberately choose to never use them no matter what. That's why I chose to use various Spring functionalities alongside with lots of other packages and solutions, but never making my application strongly depending on them.
 
-Certainly, there are always parts where decoupling is harder than others and at some point I had to make these parts more dependent of framework code. But you can clearly see that the application is layered, well-designed and very well-tested. Most change requirements would be a no-brainer. Oh, and I'm not a bookworm myself but there's a lot of empirical DDD influence as well.
+Certainly, there are always those parts where decoupling is harder than others and at some point I had to make these parts more dependent of framework usage. But you can clearly see that the application is layered, well-designed and very well-tested. Most change requirements would be a no-brainer. Oh, and I'm not a bookworm myself but there's a lot of empirical DDD influence as well.
 
 Here's a list of main code features:
 - API initialization with Spring Boot
@@ -39,7 +39,7 @@ Run `docker compose up -d` to get MySQL and Redis containers running. That's it.
 
 ### Step 3
 
-Run `mvn flyway:migrate` to migrate database schema defined in `src/main/resources/db/migration`. Check [flyway migration docs](https://documentation.red-gate.com/flyway/flyway-cli-and-api/concepts/migrations) for better undestranding.
+Run `mvn flyway:migrate` to migrate database schema defined in `src/main/resources/db/migration`. Check [flyway migration docs](https://documentation.red-gate.com/flyway/flyway-cli-and-api/concepts/migrations) for better understanding.
 
 ### Step 4
 
@@ -53,7 +53,7 @@ Note that JWT generation needs these files in the exact indicated location with 
 
 Now je just need to run tests to see if everything is working smoothly:
 - `mvn test` to run all tests
-- and `mvn jacoco:report` to generate a coverage report. Anh index.html file should be create in `target/site/jacoco/`. You may open it to check the projects test coverage.
+- and `mvn jacoco:report` to generate a coverage report. Anh index.html file should be created in `target/site/jacoco/`. You may open it to check the projects test coverage.
 
 ### Have fun!
 
