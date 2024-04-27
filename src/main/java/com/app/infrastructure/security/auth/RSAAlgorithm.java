@@ -36,7 +36,7 @@ public class RSAAlgorithm {
         byte[] publicKeyBytes = null;
 
         try {
-            publicKeyBytes = Files.readAllBytes(Paths.get(publicKeyPath));
+            publicKeyBytes = this.extractPublicKeyBytes(publicKeyPath);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -83,6 +83,20 @@ public class RSAAlgorithm {
         String keyPEM = new String(keyPEMBytes);
         String pemHeader = "-----BEGIN PRIVATE KEY-----";
         String pemFooter = "-----END PRIVATE KEY-----";
+        int start = keyPEM.indexOf(pemHeader) + pemHeader.length();
+        int end = keyPEM.indexOf(pemFooter);
+        keyPEM = keyPEM.substring(start, end);
+        keyPEM = keyPEM.replaceAll("\\s+", "");
+
+        return Base64.getDecoder().decode(keyPEM);
+    }
+
+    private byte[] extractPublicKeyBytes(String keyPath) throws IOException {
+        byte[] keyPEMBytes = Files.readAllBytes(Paths.get(keyPath));
+
+        String keyPEM = new String(keyPEMBytes);
+        String pemHeader = "-----BEGIN PUBLIC KEY-----";
+        String pemFooter = "-----END PUBLIC KEY-----";
         int start = keyPEM.indexOf(pemHeader) + pemHeader.length();
         int end = keyPEM.indexOf(pemFooter);
         keyPEM = keyPEM.substring(start, end);
