@@ -1,8 +1,14 @@
 # Introduction
 
-This is a template java project. All basic features were design to offer a plug-n-play development. Here's a list of code features:
+This is a template Java project. All basic features were designed to offer a plug-and-play development. The main idea was to build a solid, reliable and safe start-point to develop Java REST APIs. To achieve that, concepts of SOLID and Clean Code were applied, such as a Clean Architecture approach.
+
+It is always a difficult choice to not hard-code framework pieces into a project. Obviously, the work is more extensive, but it always pays back. The advantage of copying-pasting snippets and getting things running in a few minutes frequently becomes a headache when it comes to new business requirements, need of change and adaptation, upgrading and upscaling. The project becomes a hostage of frameworks and third-party tools. In the other hand, frameworks and plugins offer very handy solutions for a vast of problems. It would be irrational to ignore them all and deliberately choose to never use them. That's why I chose to use various Spring functionalities alongside with lots of other packages solutions, but never making my application strongly depending on them.
+
+Certainly, there are always parts where decoupling is harder than others and at some point I had to make these parts more dependent of framework code. But you can clearly see that the application is layered, well-designed and very well-tested. Most change requirements would be a no-brainer. Oh, and I'm not a bookworm myself but there's a lot of empirical DDD influence as well.
+
+Here's a list of main code features:
 - API initialization with Spring Boot
-- Clean Architectured code
+- Clean Architecture code
 - Authentication with JWT
 - Basic User entity CRUD
 - Cache with Redis
