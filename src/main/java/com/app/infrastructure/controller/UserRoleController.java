@@ -3,7 +3,7 @@ package com.app.infrastructure.controller;
 import com.app.application.dto.authorization.RoleDTO;
 import com.app.application.exception.ResourceNotFound;
 import com.app.application.service.UserRoleService;
-import com.app.application.util.ErrorResponse;
+import com.app.application.util.http.ErrorResponse;
 import com.app.infrastructure.persistence.exceptions.EntityNotFoundException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

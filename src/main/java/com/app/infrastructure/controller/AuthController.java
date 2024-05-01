@@ -3,7 +3,7 @@ package com.app.infrastructure.controller;
 import com.app.application.dto.auth.LoginRequestDTO;
 import com.app.application.dto.auth.LoginResponseDTO;
 import com.app.application.service.AuthService;
-import com.app.application.util.ErrorResponse;
+import com.app.application.util.http.ErrorResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;

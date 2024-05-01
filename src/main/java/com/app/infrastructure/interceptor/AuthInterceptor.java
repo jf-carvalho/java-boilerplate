@@ -1,8 +1,8 @@
 package com.app.infrastructure.interceptor;
 
 import com.app.application.exception.UnauthenticatedException;
-import com.app.application.util.AuthInterceptorHandler;
-import com.app.application.util.ErrorResponse;
+import com.app.application.util.authentication.AuthInterceptorHandler;
+import com.app.application.util.http.ErrorResponse;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;

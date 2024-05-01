@@ -3,7 +3,7 @@ package com.app.config;
 import com.app.application.service.AuthService;
 import com.app.application.service.UserRoleService;
 import com.app.application.service.UserService;
-import com.app.application.util.AuthInterceptorHandler;
+import com.app.application.util.authentication.AuthInterceptorHandler;
 import com.app.infrastructure.cache.CacheInterface;
 import com.app.infrastructure.cache.JedisCache;
 import com.app.infrastructure.interceptor.AuthInterceptor;

@@ -1,5 +1,6 @@
 package com.app.application.util;
 
+import com.app.application.util.http.ErrorResponse;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;

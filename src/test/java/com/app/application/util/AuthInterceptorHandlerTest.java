@@ -4,6 +4,7 @@ import com.app.application.dto.auth.JwtClaimDTO;
 import com.app.application.dto.user.UserResponseDTO;
 import com.app.application.exception.UnauthenticatedException;
 import com.app.application.service.UserService;
+import com.app.application.util.authentication.AuthInterceptorHandler;
 import com.app.domain.entity.User;
 import com.app.infrastructure.cache.CacheInterface;
 import com.app.infrastructure.security.auth.AuthHolderInterface;
