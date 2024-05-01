@@ -1,7 +1,9 @@
 package com.app.application.service;
 
+import com.app.application.dto.authorization.PermissionDTO;
 import com.app.application.dto.authorization.RoleDTO;
 import com.app.application.exception.ResourceNotFound;
+import com.app.infrastructure.persistence.entity.Permission;
 import com.app.infrastructure.persistence.entity.Role;
 import com.app.infrastructure.persistence.entity.User;
 import com.app.infrastructure.persistence.repository.RepositoryInterface;
@@ -75,9 +77,16 @@ public class UserRoleServiceTest {
         Role foundRole2 = new Role(2L, "bar");
 
         List<RoleDTO> rolesDTOs = new ArrayList<>();
-        rolesDTOs.add(new RoleDTO(1L, "foo"));
-        rolesDTOs.add(new RoleDTO(2L, "bar"));
-        rolesDTOs.add(new RoleDTO(3L, "baz"));
+
+        List<PermissionDTO> role1Permissions = new ArrayList<PermissionDTO>();
+        role1Permissions.add(new PermissionDTO(1L, "foo-permission"));
+        RoleDTO role1 = new RoleDTO(1L, "foo", role1Permissions);
+        rolesDTOs.add(role1);
+
+        List<PermissionDTO> role2Permissions = new ArrayList<PermissionDTO>();
+        role2Permissions.add(new PermissionDTO(2L, "bar-permission"));
+        RoleDTO role2 = new RoleDTO(2L, "bar", role2Permissions);
+        rolesDTOs.add(role2);
 
         when(roleRepository.getById(1L)).thenReturn(foundRole1);
         when(roleRepository.getById(2L)).thenReturn(foundRole2);
@@ -94,6 +103,7 @@ public class UserRoleServiceTest {
         verify(foundRoles).addAll(any());
 
         assertEquals( 2, roles.size());
+        assertNotNull(roles.getFirst().permissions());
     }
 
     @Test

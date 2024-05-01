@@ -1,7 +1,9 @@
 package com.app.application.service;
 
+import com.app.application.dto.authorization.PermissionDTO;
 import com.app.application.dto.authorization.RoleDTO;
 import com.app.application.exception.ResourceNotFound;
+import com.app.infrastructure.persistence.entity.Permission;
 import com.app.infrastructure.persistence.entity.Role;
 import com.app.infrastructure.persistence.entity.User;
 import com.app.infrastructure.persistence.repository.RepositoryInterface;
@@ -31,7 +33,16 @@ public class UserRoleService {
         List<RoleDTO> rolesDTOs = new ArrayList<>();
 
         roles.forEach(role -> {
-            RoleDTO roleDTO = new RoleDTO(role.getId(), role.getName());
+            Set<Permission> rolePermissions = role.getPermissions();
+
+            List<PermissionDTO> rolePermissionsDTOs = new ArrayList<>();
+
+            rolePermissions.forEach(rolePermission -> {
+                PermissionDTO permissionDTO = new PermissionDTO(rolePermission.getId(), rolePermission.getName());
+                rolePermissionsDTOs.add(permissionDTO);
+            });
+
+            RoleDTO roleDTO = new RoleDTO(role.getId(), role.getName(), rolePermissionsDTOs);
             rolesDTOs.add(roleDTO);
         });
 
@@ -60,7 +71,16 @@ public class UserRoleService {
         List<RoleDTO> rolesDTOs = new ArrayList<>();
 
         rolesToUpdate.forEach(updatedRole -> {
-            RoleDTO roleDTO = new RoleDTO(updatedRole.getId(), updatedRole.getName());
+            Set<Permission> rolePermissions = updatedRole.getPermissions();
+
+            List<PermissionDTO> rolePermissionsDTOs = new ArrayList<>();
+
+            rolePermissions.forEach(rolePermission -> {
+                PermissionDTO permissionDTO = new PermissionDTO(rolePermission.getId(), rolePermission.getName());
+                rolePermissionsDTOs.add(permissionDTO);
+            });
+
+            RoleDTO roleDTO = new RoleDTO(updatedRole.getId(), updatedRole.getName(), rolePermissionsDTOs);
             rolesDTOs.add(roleDTO);
         });
 
