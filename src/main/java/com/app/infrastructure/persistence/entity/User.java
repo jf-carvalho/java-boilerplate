@@ -34,7 +34,7 @@ public class User {
             joinColumns = { @JoinColumn(name = "user_id") },
             inverseJoinColumns = { @JoinColumn(name = "role_id") }
     )
-    Set<Role> roles = new HashSet<Role>();
+    private Set<Role> roles = new HashSet<Role>();
 
     public String getCreatedAt() {
         return createdAt;
@@ -126,4 +126,8 @@ public class User {
     }
 
     public String getPassword() { return password; }
+
+    public Set<Role> getRoles() {
+        return this.roles;
+    }
 }

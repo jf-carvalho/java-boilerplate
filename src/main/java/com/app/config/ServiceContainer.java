@@ -1,11 +1,13 @@
 package com.app.config;
 
 import com.app.application.service.AuthService;
+import com.app.application.service.UserRoleService;
 import com.app.application.service.UserService;
 import com.app.application.util.AuthInterceptorHandler;
 import com.app.infrastructure.cache.CacheInterface;
 import com.app.infrastructure.cache.JedisCache;
 import com.app.infrastructure.interceptor.AuthInterceptor;
+import com.app.infrastructure.persistence.entity.Role;
 import com.app.infrastructure.persistence.entity.User;
 import com.app.infrastructure.persistence.repository.RepositoryInterface;
 import com.app.infrastructure.persistence.repository.spring.SpringRepository;
@@ -17,6 +19,7 @@ import jakarta.persistence.EntityManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Scope;
 import redis.clients.jedis.JedisPool;
 
 import java.io.File;
@@ -32,6 +35,7 @@ public class ServiceContainer {
     private EntityManager entityManager;
 
     @Bean
+    @Scope("prototype")
     public <T> RepositoryInterface<T> repository() {
         return new SpringRepository<T>(this.entityManager);
     }
@@ -103,5 +107,16 @@ public class ServiceContainer {
     @Bean
     public AuthInterceptor authInterceptor() {
         return new AuthInterceptor(authInterceptorHandler());
+    }
+
+    @Bean
+    public UserRoleService userRoleService() {
+        RepositoryInterface<User> userRepository = repository();
+        userRepository.setEntity(User.class);
+
+        RepositoryInterface<Role> roleRepository = repository();
+        roleRepository.setEntity(Role.class);
+
+        return new UserRoleService(userRepository, roleRepository);
     }
 }
