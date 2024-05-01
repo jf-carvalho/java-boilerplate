@@ -17,6 +17,14 @@ public class Role {
     @ManyToMany(mappedBy = "roles")
     private Set<User> users = new HashSet<User>();
 
+    @ManyToMany
+    @JoinTable(
+            name = "roles_permissions",
+            joinColumns = { @JoinColumn(name = "role_id") },
+            inverseJoinColumns = { @JoinColumn(name = "role_id") }
+    )
+    private Set<Permission> permissions = new HashSet<Permission>();
+
     public Role() {
     }
 
@@ -43,5 +51,9 @@ public class Role {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public Set<Permission> getPermissions() {
+        return this.permissions;
     }
 }

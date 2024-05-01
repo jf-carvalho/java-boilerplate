@@ -1,6 +1,6 @@
 package com.app.infrastructure.controller;
 
-import com.app.application.dto.RoleDTO;
+import com.app.application.dto.authorization.RoleDTO;
 import com.app.application.exception.ResourceNotFound;
 import com.app.application.service.UserRoleService;
 import com.app.application.util.ErrorResponse;

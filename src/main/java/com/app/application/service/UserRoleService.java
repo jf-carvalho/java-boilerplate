@@ -1,6 +1,6 @@
 package com.app.application.service;
 
-import com.app.application.dto.RoleDTO;
+import com.app.application.dto.authorization.RoleDTO;
 import com.app.application.exception.ResourceNotFound;
 import com.app.infrastructure.persistence.entity.Role;
 import com.app.infrastructure.persistence.entity.User;
