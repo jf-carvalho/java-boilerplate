@@ -40,6 +40,8 @@ Run `docker compose up -d` to get MySQL and Redis containers running. That's it.
 
 ### Step 3
 
+Copy the `flyway.conf.example` at the project's root and paste it with the name `flyway.conf`. No modifications should be needed.
+
 Run `mvn flyway:migrate` to migrate database schema defined in `src/main/resources/db/migration`. Check [flyway migration docs](https://documentation.red-gate.com/flyway/flyway-cli-and-api/concepts/migrations) for better understanding.
 
 ### Step 4
