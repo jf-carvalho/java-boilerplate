@@ -28,7 +28,7 @@ public class User {
     @Column(name = "deleted_at")
     private String deletedAt;
 
-    @ManyToMany
+    @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(
             name = "users_roles",
             joinColumns = { @JoinColumn(name = "user_id") },

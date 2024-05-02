@@ -4,9 +4,11 @@ import com.app.application.service.AuthService;
 import com.app.application.service.UserRoleService;
 import com.app.application.service.UserService;
 import com.app.application.util.authentication.AuthInterceptorHandler;
+import com.app.application.util.authorization.AuthorizationInterceptorHandler;
 import com.app.infrastructure.cache.CacheInterface;
 import com.app.infrastructure.cache.JedisCache;
-import com.app.infrastructure.interceptor.AuthInterceptor;
+import com.app.infrastructure.interceptor.AuthenticationInterceptor;
+import com.app.infrastructure.interceptor.AuthorizationInterceptor;
 import com.app.infrastructure.persistence.entity.Role;
 import com.app.infrastructure.persistence.entity.User;
 import com.app.infrastructure.persistence.repository.RepositoryInterface;
@@ -105,8 +107,8 @@ public class ServiceContainer {
     }
 
     @Bean
-    public AuthInterceptor authInterceptor() {
-        return new AuthInterceptor(authInterceptorHandler());
+    public AuthenticationInterceptor authInterceptor() {
+        return new AuthenticationInterceptor(authInterceptorHandler());
     }
 
     @Bean
@@ -118,5 +120,15 @@ public class ServiceContainer {
         roleRepository.setEntity(Role.class);
 
         return new UserRoleService(userRepository, roleRepository);
+    }
+
+    @Bean
+    public AuthorizationInterceptorHandler authorizationInterceptorHandler() {
+        return new AuthorizationInterceptorHandler(authHolder(), userRoleService());
+    }
+
+    @Bean
+    public AuthorizationInterceptor authorizationInterceptor() {
+        return new AuthorizationInterceptor(authorizationInterceptorHandler());
     }
 }

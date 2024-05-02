@@ -12,10 +12,10 @@ import org.springframework.web.servlet.HandlerInterceptor;
 
 import java.io.IOException;
 
-public class AuthInterceptor implements HandlerInterceptor {
+public class AuthenticationInterceptor implements HandlerInterceptor {
     private final AuthInterceptorHandler handler;
 
-    public AuthInterceptor(AuthInterceptorHandler handler) {
+    public AuthenticationInterceptor(AuthInterceptorHandler handler) {
         this.handler = handler;
     }
 

@@ -14,8 +14,10 @@ public class Permission {
 
     private String name;
 
-    @ManyToMany(mappedBy = "permissions")
+    @ManyToMany(mappedBy = "permissions", fetch = FetchType.EAGER)
     private Set<Role> roles = new HashSet<Role>();
+
+    public Permission() {}
 
     public Permission(Long id, String name) {
         this.id = id;
