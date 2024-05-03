@@ -4,6 +4,9 @@ import jakarta.persistence.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
+import java.util.HashSet;
+import java.util.Set;
+
 @Entity
 @Table(name = "users")
 public class User {
@@ -24,6 +27,14 @@ public class User {
 
     @Column(name = "deleted_at")
     private String deletedAt;
+
+    @ManyToMany(fetch = FetchType.EAGER)
+    @JoinTable(
+            name = "users_roles",
+            joinColumns = { @JoinColumn(name = "user_id") },
+            inverseJoinColumns = { @JoinColumn(name = "role_id") }
+    )
+    private Set<Role> roles = new HashSet<Role>();
 
     public String getCreatedAt() {
         return createdAt;
@@ -115,4 +126,8 @@ public class User {
     }
 
     public String getPassword() { return password; }
+
+    public Set<Role> getRoles() {
+        return this.roles;
+    }
 }

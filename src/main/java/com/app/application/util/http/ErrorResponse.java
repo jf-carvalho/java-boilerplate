@@ -1,4 +1,4 @@
-package com.app.application.util;
+package com.app.application.util.http;
 
 public class ErrorResponse {
     private String error;

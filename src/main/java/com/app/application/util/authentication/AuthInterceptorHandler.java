@@ -1,4 +1,4 @@
-package com.app.application.util;
+package com.app.application.util.authentication;
 
 import com.app.application.dto.auth.JwtClaimDTO;
 import com.app.application.dto.user.UserResponseDTO;

@@ -63,7 +63,7 @@ Now je just need to run tests to see if everything is working smoothly:
 ---
 
 # Exploring the code
-
+*This section of the README file is under construction*
 - Architecture and Spring usage
   - Configuration
   - Dependency injection
