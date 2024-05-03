@@ -170,6 +170,8 @@
 						<exclude>**/infrastructure/persistence/exceptions/IllegalCriteriaTypeException.class</exclude>
 						<exclude>**/infrastructure/controller/*</exclude>
 						<exclude>**/infrastructure/interceptor/*</exclude>
+						<exclude>com/app/application/util/http/ErrorResponse.class</exclude>
+						<exclude>db/migration/**</exclude>
 					</excludes>
 				</configuration>
 				<executions>

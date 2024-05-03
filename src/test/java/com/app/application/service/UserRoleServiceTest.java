@@ -58,6 +58,34 @@ public class UserRoleServiceTest {
         assertEquals(userRoles.getFirst().getClass(), RoleDTO.class);
     }
 
+
+    @Test
+    public void shouldGetUserRolesWithPermissions() {
+        User foundUser = mock(User.class);
+
+        when(userRepository.getById(1L)).thenReturn(foundUser);
+
+        Role role = mock(Role.class);
+        Set<Role> roles = new HashSet<>();
+        roles.add(role);
+
+        Set<Permission> permissions = new HashSet<>();
+        Permission foundPermission = new Permission(1L, "foo");
+        permissions.add(foundPermission);
+
+        when(role.getPermissions()).thenReturn(permissions);
+        when(foundUser.getRoles()).thenReturn(roles);
+
+        List<RoleDTO> userRoles = this.userRoleService.getUserRoles(1L);
+
+        verify(foundUser).getRoles();
+
+        assertEquals(userRoles.getFirst().getClass(), RoleDTO.class);
+        assertEquals(userRoles.getFirst().permissions().getFirst().getClass(), PermissionDTO.class);
+        assertEquals(userRoles.getFirst().permissions().getFirst().id(), foundPermission.getId());
+        assertEquals(userRoles.getFirst().permissions().getFirst().name(), foundPermission.getName());
+    }
+
     @Test
     public void shouldNotGetUsers_whenUserNotFound() {
         when(userRepository.getById(1L)).thenReturn(null);
@@ -73,8 +101,8 @@ public class UserRoleServiceTest {
 
         when(userRepository.getById(1L)).thenReturn(foundUser);
 
-        Role foundRole1 = new Role(1L, "foo");
-        Role foundRole2 = new Role(2L, "bar");
+        Role foundRole1 = mock(Role.class);
+        Role foundRole2 = mock(Role.class);
 
         List<RoleDTO> rolesDTOs = new ArrayList<>();
 
@@ -82,6 +110,10 @@ public class UserRoleServiceTest {
         role1Permissions.add(new PermissionDTO(1L, "foo-permission"));
         RoleDTO role1 = new RoleDTO(1L, "foo", role1Permissions);
         rolesDTOs.add(role1);
+
+        Set<Permission> role1FoundPermissions = new HashSet<>();
+        role1FoundPermissions.add(new Permission(1L, "foo-permission"));
+        when(foundRole1.getPermissions()).thenReturn(role1FoundPermissions);
 
         List<PermissionDTO> role2Permissions = new ArrayList<PermissionDTO>();
         role2Permissions.add(new PermissionDTO(2L, "bar-permission"));
@@ -103,7 +135,12 @@ public class UserRoleServiceTest {
         verify(foundRoles).addAll(any());
 
         assertEquals( 2, roles.size());
-        assertNotNull(roles.getFirst().permissions());
+
+        RoleDTO firstRole = roles.getFirst();
+
+        assertEquals(firstRole.permissions().get(0).getClass(), PermissionDTO.class);
+        assertEquals(firstRole.permissions().get(0).id(), 1L);
+        assertEquals(firstRole.permissions().get(0).name(), "foo-permission");
     }
 
     @Test

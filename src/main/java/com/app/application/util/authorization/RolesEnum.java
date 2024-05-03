@@ -10,10 +10,6 @@ public enum RolesEnum {
         this.displayName = displayName;
     }
 
-    public String displayName() {
-        return displayName;
-    }
-
     @Override
     public String toString() {
         return displayName;

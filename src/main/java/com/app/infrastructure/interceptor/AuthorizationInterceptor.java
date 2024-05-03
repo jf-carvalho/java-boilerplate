@@ -1,7 +1,5 @@
 package com.app.infrastructure.interceptor;
 
-import com.app.application.exception.UnauthenticatedException;
-import com.app.application.exception.UnauthorizedException;
 import com.app.application.util.authorization.AuthorizationInterceptorHandler;
 import com.app.application.util.authorization.RequiresAuthorization;
 import com.app.application.util.http.ErrorResponse;
@@ -24,21 +22,20 @@ public class AuthorizationInterceptor implements HandlerInterceptor {
 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
-        try {
-            if (handler instanceof HandlerMethod) {
-                HandlerMethod handlerMethod = (HandlerMethod) handler;
-                RequiresAuthorization annotation = handlerMethod.getMethodAnnotation(RequiresAuthorization.class);
+        if (handler instanceof HandlerMethod handlerMethod) {
+            RequiresAuthorization annotation = handlerMethod.getMethodAnnotation(RequiresAuthorization.class);
 
-                if (annotation == null) {
-                    return true;
-                }
-
-                String actionName = annotation.value();
-
-                this.handler.handle(actionName);
+            if (annotation == null) {
+                return true;
             }
-        } catch(UnauthorizedException exception) {
-            return this.unauthorized(response);
+
+            String actionName = annotation.value();
+
+            boolean authorized = this.handler.handle(actionName);
+
+            if (!authorized) {
+                return this.unauthorized(response);
+            }
         }
 
         return true;
