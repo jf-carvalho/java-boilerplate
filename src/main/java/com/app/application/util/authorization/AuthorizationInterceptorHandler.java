@@ -24,7 +24,7 @@ public class AuthorizationInterceptorHandler {
         List<RoleDTO> roles = this.userRoleService.getUserRoles(user.getId());
 
         boolean isSuper = roles.stream()
-                .anyMatch(role -> "super".equals(role.name()));
+                .anyMatch(role -> RolesEnum.SUPER.toString().equalsIgnoreCase(role.name()));
 
         if (isSuper) {
             return;
