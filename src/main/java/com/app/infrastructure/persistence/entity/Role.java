@@ -14,8 +14,16 @@ public class Role {
 
     private String name;
 
-    @ManyToMany(mappedBy = "roles")
+    @ManyToMany(mappedBy = "roles", fetch = FetchType.EAGER)
     private Set<User> users = new HashSet<User>();
+
+    @ManyToMany(fetch = FetchType.EAGER)
+    @JoinTable(
+            name = "roles_permissions",
+            joinColumns = { @JoinColumn(name = "role_id") },
+            inverseJoinColumns = { @JoinColumn(name = "permission_id") }
+    )
+    private Set<Permission> permissions = new HashSet<Permission>();
 
     public Role() {
     }
@@ -43,5 +51,9 @@ public class Role {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public Set<Permission> getPermissions() {
+        return this.permissions;
     }
 }

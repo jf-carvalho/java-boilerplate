@@ -28,13 +28,13 @@ public class User {
     @Column(name = "deleted_at")
     private String deletedAt;
 
-    @ManyToMany
+    @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(
             name = "users_roles",
             joinColumns = { @JoinColumn(name = "user_id") },
             inverseJoinColumns = { @JoinColumn(name = "role_id") }
     )
-    Set<Role> roles = new HashSet<Role>();
+    private Set<Role> roles = new HashSet<Role>();
 
     public String getCreatedAt() {
         return createdAt;
@@ -126,4 +126,8 @@ public class User {
     }
 
     public String getPassword() { return password; }
+
+    public Set<Role> getRoles() {
+        return this.roles;
+    }
 }

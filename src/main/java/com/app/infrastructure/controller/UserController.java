@@ -5,13 +5,13 @@ import com.app.application.dto.user.UserRequestDTO;
 import com.app.application.dto.user.UserResponseDTO;
 import com.app.application.exception.ResourceNotFound;
 import com.app.application.service.UserService;
-import com.app.application.util.ErrorResponse;
+import com.app.application.util.authorization.RequiresAuthorization;
+import com.app.application.util.http.ErrorResponse;
 import com.app.infrastructure.persistence.exceptions.EntityNotFoundException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.HashMap;
 import java.util.List;
 
 @RestController
@@ -23,6 +23,7 @@ public class UserController {
     }
 
     @GetMapping()
+    @RequiresAuthorization("get all users")
     public ResponseEntity<?> getAll() {
         try {
             List<UserResponseDTO> users = userService.getAll();

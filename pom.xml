@@ -145,6 +145,11 @@
 				<groupId>org.flywaydb</groupId>
 				<artifactId>flyway-maven-plugin</artifactId>
 				<version>10.10.0</version>
+				<configuration>
+					<locations>
+						<location>classpath:db/migration</location>
+					</locations>
+				</configuration>
 			</plugin>
 			<!-- maven surefire -->
 			<plugin>
@@ -165,6 +170,8 @@
 						<exclude>**/infrastructure/persistence/exceptions/IllegalCriteriaTypeException.class</exclude>
 						<exclude>**/infrastructure/controller/*</exclude>
 						<exclude>**/infrastructure/interceptor/*</exclude>
+						<exclude>com/app/application/util/http/ErrorResponse.class</exclude>
+						<exclude>db/migration/**</exclude>
 					</excludes>
 				</configuration>
 				<executions>
