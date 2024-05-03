@@ -16,7 +16,7 @@ Here's a list of main code features:
 - Generic Repository with Hibernate and Criteria Pattern
 - Tests with JUnit and Jacoco coverage report
 - Database migrations with flyway
-- *ACL is about to be made*
+- Basic ACL with roles and permissions
 
 The app was built with the following versions:
 - Java 21
