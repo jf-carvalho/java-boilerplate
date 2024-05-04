@@ -44,6 +44,8 @@ Copy the `flyway.conf.example` at the project's root and paste it with the name 
 
 Run `mvn flyway:migrate` to migrate database schema defined in `src/main/resources/db/migration`. Check [flyway migration docs](https://documentation.red-gate.com/flyway/flyway-cli-and-api/concepts/migrations) for better understanding.
 
+**Note**: when the `V3_0__Insert_super_user` migration runs, it generates a random password for the super user and prints it in the console. Save it to make your first authenticated API calls. You may change that password afterwards.
+
 ### Step 4
 
 We need to generate secure keys to get Auth0 JWT generation working. Go to `cd src/main/resources/keys` and use openssl to generate the keys:
