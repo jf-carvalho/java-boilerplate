@@ -52,7 +52,7 @@ We need to generate secure keys to get Auth0 JWT generation working. Go to `cd s
 
 Note that JWT generation needs these files in the exact indicated location with the exact names specified in the example above.
 
-### Step 5
+### Step 5 (optional)
 
 Now je just need to run tests to see if everything is working smoothly:
 - `mvn test` to run all tests
