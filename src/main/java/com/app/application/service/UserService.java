@@ -4,6 +4,7 @@ import com.app.application.dto.user.UpdatePasswordDTO;
 import com.app.application.dto.user.UserRequestDTO;
 import com.app.application.dto.user.UserResponseDTO;
 import com.app.application.dto.user.UserResponseWithPasswordDTO;
+import com.app.application.exception.ForbiddenException;
 import com.app.application.exception.IncorrectPasswordException;
 import com.app.application.exception.ResourceNotFound;
 import com.app.domain.exception.UserException;
@@ -11,20 +12,28 @@ import com.app.infrastructure.persistence.criteria.Criteria;
 import com.app.infrastructure.persistence.entity.User;
 import com.app.infrastructure.persistence.exceptions.EntityNotFoundException;
 import com.app.infrastructure.persistence.repository.RepositoryInterface;
+import com.app.infrastructure.security.auth.AuthHolderInterface;
 import com.app.infrastructure.security.hasher.HasherInterface;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Objects;
 
 public class UserService {
     private final RepositoryInterface<User> userRepository;
     private final HasherInterface hasherInterface;
+    private final AuthHolderInterface authHolder;
 
-    public UserService(RepositoryInterface<User> userRepository, HasherInterface hasherInterface) {
+    public UserService(
+            RepositoryInterface<User> userRepository,
+            HasherInterface hasherInterface,
+            AuthHolderInterface authHolder
+    ) {
         this.userRepository = userRepository;
         this.hasherInterface = hasherInterface;
+        this.authHolder = authHolder;
     }
 
     public UserResponseDTO get(Long id) {
@@ -130,22 +139,10 @@ public class UserService {
     }
 
     public UserResponseDTO updatePassword(UpdatePasswordDTO updatePasswordDTO) {
-        Criteria criteria = new Criteria();
-        criteria.equals("email", updatePasswordDTO.email());
+        User user = this.getUserByEmail(updatePasswordDTO.email());
 
-        List<User> matchingUsers = userRepository.getByFilter(criteria);
-
-        if (matchingUsers.isEmpty()) {
-            throw new ResourceNotFound("User with provided email not found.");
-        }
-
-        User user = matchingUsers.getFirst();
-
-        boolean isOldPasswordCorrect = hasherInterface.checkHash(user.getPassword(), updatePasswordDTO.oldPassword());
-
-        if (!isOldPasswordCorrect) {
-            throw new IncorrectPasswordException("The provided password is incorrect.");
-        }
+        this.validateAccountOwner(user);
+        this.checkPassword(user.getPassword(), updatePasswordDTO.oldPassword());
 
         com.app.domain.entity.User userToUpdateDomain = new com.app.domain.entity.User(
                 user.getId(), updatePasswordDTO.newPassword()
@@ -170,6 +167,35 @@ public class UserService {
                 savedUser.getUpdatedAt(),
                 savedUser.getDeletedAt()
         );
+    }
+
+    private User getUserByEmail(String email) {
+        Criteria criteria = new Criteria();
+        criteria.equals("email", email);
+
+        List<User> matchingUsers = userRepository.getByFilter(criteria);
+
+        if (matchingUsers.isEmpty()) {
+            throw new ResourceNotFound("User with provided email not found.");
+        }
+
+        return matchingUsers.getFirst();
+    }
+
+    private void checkPassword(String userRealPassword, String oldPasswordInput) {
+        boolean isOldPasswordCorrect = hasherInterface.checkHash(userRealPassword, oldPasswordInput);
+
+        if (!isOldPasswordCorrect) {
+            throw new IncorrectPasswordException("The provided password is incorrect.");
+        }
+    }
+
+    private void validateAccountOwner(User user) {
+        com.app.domain.entity.User loggedUser = authHolder.getUser();
+
+        if (!Objects.equals(loggedUser.getId(), user.getId())) {
+            throw new ForbiddenException("Forbidden.");
+        }
     }
 
     public boolean softDelete(Long userId) {

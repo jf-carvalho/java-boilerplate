@@ -4,6 +4,7 @@ import com.app.application.dto.user.UpdatePasswordDTO;
 import com.app.application.dto.user.UserRequestDTO;
 import com.app.application.dto.user.UserResponseDTO;
 import com.app.application.dto.user.UserResponseWithPasswordDTO;
+import com.app.application.exception.ForbiddenException;
 import com.app.application.exception.IncorrectPasswordException;
 import com.app.application.exception.ResourceNotFound;
 import com.app.domain.exception.UserException;
@@ -12,6 +13,7 @@ import com.app.infrastructure.persistence.criteria.Criteria;
 import com.app.infrastructure.persistence.entity.User;
 import com.app.infrastructure.persistence.exceptions.EntityNotFoundException;
 import com.app.infrastructure.persistence.repository.RepositoryInterface;
+import com.app.infrastructure.security.auth.AuthHolderInterface;
 import com.app.infrastructure.security.hasher.HasherInterface;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -33,6 +35,9 @@ public class UserServiceTest {
 
     @Mock
     private HasherInterface hasherInterface;
+
+    @Mock
+    private AuthHolderInterface authHolder;
 
     @InjectMocks
     private UserService userService;
@@ -229,6 +234,8 @@ public class UserServiceTest {
 
         when(userRepository.getByFilter(any(Criteria.class))).thenReturn(matchingUsers);
 
+        when(authHolder.getUser()).thenReturn(new com.app.domain.entity.User(1L, "John Doe", "jdoe@domain.com"));
+
         when(hasherInterface.checkHash(any(String.class), any(String.class))).thenReturn(true);
         when(hasherInterface.getSalt()).thenReturn("random_salt");
         when(hasherInterface.getHash("Password1", "random_salt")).thenReturn("tH1$k1nd4L00k$l1k34h4$h");
@@ -273,6 +280,28 @@ public class UserServiceTest {
     }
 
     @Test
+    public void shouldNotUpdatePassword_withInvalidLoggedUser() {
+        User foundUser = new User(1L, "John Doe", "jdoe@domain.com", "1234657");
+
+        List<User> matchingUsers = new ArrayList<User>();
+        matchingUsers.add(foundUser);
+
+        when(userRepository.getByFilter(any(Criteria.class))).thenReturn(matchingUsers);
+        when(authHolder.getUser()).thenReturn(new com.app.domain.entity.User(2L, "Jane Doe", "janedoe@domain.com"));
+
+        UpdatePasswordDTO updatePasswordDTO = new UpdatePasswordDTO(
+                "jdoe@domain.com",
+                "123456",
+                "Password1"
+        );
+
+        assertThrows(
+                ForbiddenException.class,
+                () -> userService.updatePassword(updatePasswordDTO)
+        );
+    }
+
+    @Test
     public void shouldNotUpdatePassword_withIncorrectPassword() {
         User foundUser = new User(1L, "John Doe", "jdoe@domain.com", "1234657");
 
@@ -280,6 +309,8 @@ public class UserServiceTest {
         matchingUsers.add(foundUser);
 
         when(userRepository.getByFilter(any(Criteria.class))).thenReturn(matchingUsers);
+
+        when(authHolder.getUser()).thenReturn(new com.app.domain.entity.User(1L, "John Doe", "jdoe@domain.com"));
 
         when(hasherInterface.checkHash(any(String.class), any(String.class))).thenReturn(false);
 
