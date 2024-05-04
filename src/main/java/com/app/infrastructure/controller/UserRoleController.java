@@ -3,6 +3,7 @@ package com.app.infrastructure.controller;
 import com.app.application.dto.authorization.RoleDTO;
 import com.app.application.exception.ResourceNotFound;
 import com.app.application.service.UserRoleService;
+import com.app.application.util.authorization.RequiresAuthorization;
 import com.app.application.util.http.ErrorResponse;
 import com.app.infrastructure.persistence.exceptions.EntityNotFoundException;
 import org.springframework.http.HttpStatus;
@@ -21,6 +22,7 @@ public class UserRoleController {
     }
 
     @GetMapping("/{userId}")
+    @RequiresAuthorization("retrieve user roles")
     public ResponseEntity<?> getUserRoles(@PathVariable int userId) {
         try {
             List<RoleDTO> userRoles = this.userRoleService.getUserRoles((long) userId);
@@ -33,6 +35,7 @@ public class UserRoleController {
     }
 
     @PutMapping("/{userId}")
+    @RequiresAuthorization("update user roles")
     public ResponseEntity<?> getUserRoles(@PathVariable int userId, @RequestBody List<RoleDTO> roles) {
         try {
             List<RoleDTO> userRoles = this.userRoleService.syncUserRoles((long) userId, roles);

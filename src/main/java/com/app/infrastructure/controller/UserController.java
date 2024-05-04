@@ -23,7 +23,7 @@ public class UserController {
     }
 
     @GetMapping()
-    @RequiresAuthorization("get all users")
+    @RequiresAuthorization("retrieve users")
     public ResponseEntity<?> getAll() {
         try {
             List<UserResponseDTO> users = userService.getAll();
@@ -35,6 +35,7 @@ public class UserController {
     }
 
     @GetMapping("/{id}")
+    @RequiresAuthorization("retrieve users")
     public ResponseEntity<?> get(@PathVariable int id) {
         try {
             UserResponseDTO user = userService.get((long) id);
@@ -48,6 +49,7 @@ public class UserController {
     }
 
     @PostMapping()
+    @RequiresAuthorization("create users")
     public ResponseEntity<?> create(@RequestBody UserRequestDTO userRequestDTO) {
         try {
             UserResponseDTO user = userService.create(userRequestDTO);
@@ -59,6 +61,7 @@ public class UserController {
     }
 
     @PutMapping("/{id}")
+    @RequiresAuthorization("update users")
     public ResponseEntity<?> update(@PathVariable int id, @RequestBody UserRequestDTO userRequestDTO) {
         try {
             UserResponseDTO user = userService.update((long) id, userRequestDTO);
@@ -70,6 +73,7 @@ public class UserController {
     }
 
     @PutMapping("/password")
+    @RequiresAuthorization("update users")
     public ResponseEntity<?> updatePassword(@RequestBody UpdatePasswordDTO updatePasswordDTO) {
         try {
             UserResponseDTO user = userService.updatePassword(updatePasswordDTO);
@@ -81,6 +85,7 @@ public class UserController {
     }
 
     @DeleteMapping("/soft/{id}")
+    @RequiresAuthorization("delete users")
     public ResponseEntity<?> softDelete(@PathVariable int id) {
         try {
             boolean deleted = userService.softDelete((long) id);
@@ -92,6 +97,7 @@ public class UserController {
     }
 
     @PutMapping("/restore/{id}")
+    @RequiresAuthorization("update users")
     public ResponseEntity<?> restore(@PathVariable int id) {
         try {
             boolean restored = userService.restoreUser((long) id);
@@ -103,6 +109,7 @@ public class UserController {
     }
 
     @DeleteMapping("/{id}")
+    @RequiresAuthorization("delete users")
     public ResponseEntity<?> delete(@PathVariable int id) {
         try {
             boolean deleted = userService.deleteUser((long) id);
