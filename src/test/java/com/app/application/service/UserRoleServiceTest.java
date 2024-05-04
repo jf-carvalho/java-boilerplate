@@ -10,6 +10,7 @@ import com.app.infrastructure.persistence.repository.RepositoryInterface;
 import com.app.infrastructure.persistence.repository.spring.SpringRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentCaptor;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -132,7 +133,10 @@ public class UserRoleServiceTest {
         verify(this.userRepository).update(1L, foundUser);
         verify(foundUser, times(2)).getRoles();
         verify(foundRoles).clear();
-        verify(foundRoles).addAll(any());
+
+        ArgumentCaptor<Set<Role>> argument = ArgumentCaptor.forClass(HashSet.class);
+        verify(foundRoles).addAll(argument.capture());
+        assertEquals(argument.getValue().size(), 2);
 
         assertEquals( 2, roles.size());
 

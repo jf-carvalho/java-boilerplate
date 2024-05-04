@@ -3,6 +3,7 @@ package com.app.infrastructure.controller;
 import com.app.application.dto.user.UpdatePasswordDTO;
 import com.app.application.dto.user.UserRequestDTO;
 import com.app.application.dto.user.UserResponseDTO;
+import com.app.application.exception.ForbiddenException;
 import com.app.application.exception.ResourceNotFound;
 import com.app.application.service.UserService;
 import com.app.application.util.authorization.RequiresAuthorization;
@@ -79,6 +80,8 @@ public class UserController {
             UserResponseDTO user = userService.updatePassword(updatePasswordDTO);
 
             return new ResponseEntity<>(user, HttpStatus.OK);
+        } catch (ForbiddenException e) {
+            return new ResponseEntity<>(new ErrorResponse(e.getMessage()), HttpStatus.FORBIDDEN);
         } catch (Exception e) {
             return new ResponseEntity<>(new ErrorResponse(e.getMessage()), HttpStatus.BAD_REQUEST);
         }

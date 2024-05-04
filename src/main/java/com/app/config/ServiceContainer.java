@@ -51,7 +51,7 @@ public class ServiceContainer {
     public UserService userService() {
         RepositoryInterface<User> userRepository = this.repository();
         userRepository.setEntity(User.class);
-        return new UserService(userRepository, hasherInterface());
+        return new UserService(userRepository, hasherInterface(), authHolder());
     }
 
     @Bean
