@@ -9,7 +9,7 @@ Certainly, there are always those parts where decoupling is harder than others a
 Here's a list of main code features:
 - API initialization with Spring Boot
 - Clean Architecture code
-- Authentication with JWT
+- Authentication with JWT (access and refresh tokens)
 - Basic User entity CRUD
 - Cache with Redis
 - Database connection (MySQL)
