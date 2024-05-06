@@ -87,7 +87,8 @@ public class ServiceContainer {
                 userService(),
                 hasherInterface(),
                 cacheInterface(),
-                authHolder()
+                authHolder(),
+                authInterface()
         );
     }
 

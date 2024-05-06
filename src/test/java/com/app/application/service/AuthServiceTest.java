@@ -41,6 +41,9 @@ public class AuthServiceTest {
     @Mock
     private AuthHolderInterface authHolder;
 
+    @Mock
+    private JWTAuthInterface authInterface;
+
     @InjectMocks
     private AuthService authService;
 

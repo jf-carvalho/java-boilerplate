@@ -2,6 +2,7 @@ package com.app.infrastructure.controller;
 
 import com.app.application.dto.auth.LoginRequestDTO;
 import com.app.application.dto.auth.LoginResponseDTO;
+import com.app.application.dto.auth.RefreshAuthRequestDTO;
 import com.app.application.service.AuthService;
 import com.app.application.util.http.ErrorResponse;
 import org.springframework.http.HttpStatus;
@@ -21,6 +22,17 @@ public class AuthController {
     public ResponseEntity<?> login(@RequestBody LoginRequestDTO loginRequestDTO) {
         try {
             LoginResponseDTO loginResponseDTO = authService.attemptLogin(loginRequestDTO);
+
+            return new ResponseEntity<>(loginResponseDTO, HttpStatus.OK);
+        } catch (Exception e) {
+            return new ResponseEntity<>(new ErrorResponse(e.getMessage()), HttpStatus.BAD_REQUEST);
+        }
+    }
+
+    @PostMapping("/refresh")
+    public ResponseEntity<?> refresh(@RequestBody RefreshAuthRequestDTO refreshAuthRequestDTO) {
+        try {
+            LoginResponseDTO loginResponseDTO = authService.refreshToken(refreshAuthRequestDTO);
 
             return new ResponseEntity<>(loginResponseDTO, HttpStatus.OK);
         } catch (Exception e) {
