@@ -11,6 +11,7 @@ import com.app.domain.entity.User;
 import com.app.infrastructure.cache.CacheInterface;
 import com.app.infrastructure.security.auth.AuthHolderInterface;
 import com.app.infrastructure.security.auth.JWTAuthInterface;
+import com.app.infrastructure.security.auth.exception.AuthException;
 import com.app.infrastructure.security.hasher.HasherInterface;
 
 import java.text.ParseException;
@@ -68,11 +69,11 @@ public class AuthService {
         String cachedRefreshToken = this.cache.get(loggedUser.getId() + "_refresh_token");
 
         if (cachedRefreshToken == null) {
-            throw new UnauthenticatedException("User does not have a refresh token stored.");
+            throw new AuthException("User does not have a refresh token stored.");
         }
 
         if (!Objects.equals(refreshAuthRequestDTO.refreshToken(), cachedRefreshToken)) {
-            throw new UnauthenticatedException("Invalid refresh token.");
+            throw new AuthException("Invalid refresh token.");
         }
 
         this.checkRefreshTokenExpiration(refreshAuthRequestDTO.refreshToken());
@@ -103,13 +104,13 @@ public class AuthService {
         String expiresAt = null;
 
         for (JwtClaimDTO claimDTO : claims) {
-            if ("expiresAt".equals(claimDTO.key()) && !claimDTO.value().isEmpty()) {
+            if ("expiresAt".equals(claimDTO.key())) {
                 expiresAt = claimDTO.value();
             }
         }
 
         if (expiresAt == null) {
-            throw new UnauthenticatedException("Token's expiration not set.");
+            throw new AuthException("Token's expiration not set.");
         }
 
 
@@ -124,11 +125,11 @@ public class AuthService {
             currentDateTime = dateFormat.parse(currentDateString);
             expiresAtDate = dateFormat.parse(expiresAt);
         } catch (ParseException exception) {
-            throw new UnauthenticatedException("Date parsing failed.");
+            throw new AuthException("Date parsing failed.");
         }
 
         if (currentDateTime.after(expiresAtDate)) {
-            throw new UnauthenticatedException("Provided token is expired.");
+            throw new AuthException("Provided token is expired.");
         }
     }
 

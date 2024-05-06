@@ -3,12 +3,15 @@ package com.app.application.service;
 import com.app.application.dto.auth.JwtClaimDTO;
 import com.app.application.dto.auth.LoginRequestDTO;
 import com.app.application.dto.auth.LoginResponseDTO;
+import com.app.application.dto.auth.RefreshAuthRequestDTO;
 import com.app.application.dto.user.UserResponseWithPasswordDTO;
 import com.app.application.exception.ResourceNotFound;
 import com.app.application.exception.UnauthenticatedException;
+import com.app.domain.entity.User;
 import com.app.infrastructure.cache.CacheInterface;
 import com.app.infrastructure.security.auth.AuthHolderInterface;
 import com.app.infrastructure.security.auth.JWTAuthInterface;
+import com.app.infrastructure.security.auth.exception.AuthException;
 import com.app.infrastructure.security.hasher.HasherInterface;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -19,6 +22,7 @@ import org.mockito.MockitoAnnotations;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
@@ -153,5 +157,137 @@ public class AuthServiceTest {
         boolean loggedOut = authService.logout();
 
         assertTrue(loggedOut);
+    }
+
+    @Test
+    public void shouldRefreshToken() {
+        when(authHolder.getUser()).thenReturn(new User(1L, "John Doe", "jdoe@domain.com"));
+        when(cache.get(anyString())).thenReturn("valid_refresh_token");
+        when(auth.validateToken(anyString())).thenReturn(true);
+
+        List<JwtClaimDTO> jwtClaimDTOS = getJwtClaimDTOS();
+
+        when(auth.getClaims()).thenReturn(jwtClaimDTOS);
+        when(cache.get("1_current_token")).thenReturn("user_1_cached_current_token");
+
+        when(auth.createToken(any())).thenReturn("new_access_token");
+        when(auth.createToken(any())).thenReturn("new_refresh_token");
+
+        RefreshAuthRequestDTO refreshAuthRequestDTO = new RefreshAuthRequestDTO("valid_refresh_token");
+        LoginResponseDTO loginResponseDTO = authService.refreshToken(refreshAuthRequestDTO);
+
+        verify(cache, times(2)).get(anyString());
+        verify(cache, times(2)).set(anyString(), anyString());
+        verify(cache).add("auth_tokens_blacklist", "user_1_cached_current_token");
+    }
+
+    @Test
+    public void shouldNotRefreshToken_withoutRefreshTokenCached() {
+        when(authHolder.getUser()).thenReturn(new User(1L, "John Doe", "jdoe@domain.com"));
+        when(cache.get(anyString())).thenReturn(null);
+
+        RefreshAuthRequestDTO refreshAuthRequestDTO = new RefreshAuthRequestDTO("valid_refresh_token");
+        AuthException authException = assertThrows(AuthException.class, () -> authService.refreshToken(refreshAuthRequestDTO));
+
+        assertEquals("User does not have a refresh token stored.", authException.getMessage());
+    }
+
+    @Test
+    public void shouldNotRefreshToken_withWrongRefreshToken() {
+        when(authHolder.getUser()).thenReturn(new User(1L, "John Doe", "jdoe@domain.com"));
+        when(cache.get(anyString())).thenReturn("valid_cached_refresh_token");
+
+        RefreshAuthRequestDTO refreshAuthRequestDTO = new RefreshAuthRequestDTO("wrong_refresh_token");
+        AuthException authException = assertThrows(AuthException.class, () -> authService.refreshToken(refreshAuthRequestDTO));
+
+        assertEquals("Invalid refresh token.", authException.getMessage());
+    }
+
+    @Test
+    public void shouldNotRefreshToken_withoutExpirationClaim() {
+        when(authHolder.getUser()).thenReturn(new User(1L, "John Doe", "jdoe@domain.com"));
+        when(cache.get(anyString())).thenReturn("valid_cached_refresh_token");
+
+        when(auth.getClaims()).thenReturn(new ArrayList<>());
+
+        RefreshAuthRequestDTO refreshAuthRequestDTO = new RefreshAuthRequestDTO("valid_cached_refresh_token");
+        AuthException authException = assertThrows(AuthException.class, () -> authService.refreshToken(refreshAuthRequestDTO));
+
+        assertEquals("Token's expiration not set.", authException.getMessage());
+    }
+
+    @Test
+    public void shouldNotRefreshToken_withInvalidExpiration() {
+        when(authHolder.getUser()).thenReturn(new User(1L, "John Doe", "jdoe@domain.com"));
+        when(cache.get(anyString())).thenReturn("valid_refresh_token");
+        when(auth.validateToken(anyString())).thenReturn(true);
+
+        List<JwtClaimDTO> jwtClaimDTOS = getJwtClaimDTOSWithInvalid();
+
+        when(auth.getClaims()).thenReturn(jwtClaimDTOS);
+
+        RefreshAuthRequestDTO refreshAuthRequestDTO = new RefreshAuthRequestDTO("valid_refresh_token");
+        AuthException authException = assertThrows(AuthException.class, () -> authService.refreshToken(refreshAuthRequestDTO));
+
+        assertEquals("Date parsing failed.", authException.getMessage());
+    }
+
+    @Test
+    public void shouldNotRefreshToken_withExpiredToken() {
+        when(authHolder.getUser()).thenReturn(new User(1L, "John Doe", "jdoe@domain.com"));
+        when(cache.get(anyString())).thenReturn("valid_refresh_token");
+        when(auth.validateToken(anyString())).thenReturn(true);
+
+        List<JwtClaimDTO> jwtClaimDTOS = getJwtClaimDTOSWithExpired();
+
+        when(auth.getClaims()).thenReturn(jwtClaimDTOS);
+
+        RefreshAuthRequestDTO refreshAuthRequestDTO = new RefreshAuthRequestDTO("valid_refresh_token");
+        AuthException authException = assertThrows(AuthException.class, () -> authService.refreshToken(refreshAuthRequestDTO));
+
+        assertEquals("Provided token is expired.", authException.getMessage());
+    }
+
+    private List<JwtClaimDTO> getJwtClaimDTOS() {
+        List<JwtClaimDTO> jwtClaimDTOS = new ArrayList<>();
+
+        Date currentDate = new Date();
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSSSSS");
+
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(currentDate);
+
+        calendar.add(Calendar.YEAR, 1000);
+
+        Date expirationDate = calendar.getTime();
+        String formattedExpirationDate = dateFormat.format(expirationDate);
+
+        jwtClaimDTOS.add(new JwtClaimDTO("expiresAt", formattedExpirationDate));
+        return jwtClaimDTOS;
+    }
+
+    private List<JwtClaimDTO> getJwtClaimDTOSWithExpired() {
+        List<JwtClaimDTO> jwtClaimDTOS = new ArrayList<>();
+
+        Date currentDate = new Date();
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSSSSS");
+
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(currentDate);
+
+        calendar.add(Calendar.YEAR, -1000);
+
+        Date expirationDate = calendar.getTime();
+        String formattedExpirationDate = dateFormat.format(expirationDate);
+
+        jwtClaimDTOS.add(new JwtClaimDTO("expiresAt", formattedExpirationDate));
+        return jwtClaimDTOS;
+    }
+
+    private List<JwtClaimDTO> getJwtClaimDTOSWithInvalid() {
+        List<JwtClaimDTO> jwtClaimDTOS = new ArrayList<>();
+
+        jwtClaimDTOS.add(new JwtClaimDTO("expiresAt", "not-a-date"));
+        return jwtClaimDTOS;
     }
 }
