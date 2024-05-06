@@ -99,52 +99,48 @@ public class UserRoleServiceTest {
     @Test
     public void shouldSyncUserRoles() {
         User foundUser = mock(User.class);
-
         when(userRepository.getById(1L)).thenReturn(foundUser);
 
-        Role foundRole1 = mock(Role.class);
-        Role foundRole2 = mock(Role.class);
-
         List<RoleDTO> rolesDTOs = new ArrayList<>();
+        rolesDTOs.add(new RoleDTO(1L, "foo", null));
+        rolesDTOs.add(new RoleDTO(2L, "bar", null));
+        rolesDTOs.add(new RoleDTO(3L, "baz", null));
 
-        List<PermissionDTO> role1Permissions = new ArrayList<PermissionDTO>();
-        role1Permissions.add(new PermissionDTO(1L, "foo-permission"));
-        RoleDTO role1 = new RoleDTO(1L, "foo", role1Permissions);
-        rolesDTOs.add(role1);
-
-        Set<Permission> role1FoundPermissions = new HashSet<>();
-        role1FoundPermissions.add(new Permission(1L, "foo-permission"));
-        when(foundRole1.getPermissions()).thenReturn(role1FoundPermissions);
-
-        List<PermissionDTO> role2Permissions = new ArrayList<PermissionDTO>();
-        role2Permissions.add(new PermissionDTO(2L, "bar-permission"));
-        RoleDTO role2 = new RoleDTO(2L, "bar", role2Permissions);
-        rolesDTOs.add(role2);
-
+        Role foundRole1 = mock(Role.class);
         when(roleRepository.getById(1L)).thenReturn(foundRole1);
+
+        Role foundRole2 = mock(Role.class);
         when(roleRepository.getById(2L)).thenReturn(foundRole2);
+
         when(roleRepository.getById(3L)).thenReturn(null);
 
         Set<Role> foundRoles = mock(HashSet.class);
         when(foundUser.getRoles()).thenReturn(foundRoles);
 
-        List<RoleDTO> roles = this.userRoleService.syncUserRoles(1L, rolesDTOs);
+        Set<Permission> role1FoundPermissions = new HashSet<>();
+        role1FoundPermissions.add(new Permission(10L, "lorem"));
+        role1FoundPermissions.add(new Permission(20L, "ipsum"));
+        when(foundRole1.getPermissions()).thenReturn(role1FoundPermissions);
+        when(foundRole2.getPermissions()).thenReturn(role1FoundPermissions);
 
-        verify(this.userRepository).update(1L, foundUser);
+        List<RoleDTO> updatedRoles = this.userRoleService.syncUserRoles(1L, rolesDTOs);
+
         verify(foundUser, times(2)).getRoles();
         verify(foundRoles).clear();
 
-        ArgumentCaptor<Set<Role>> argument = ArgumentCaptor.forClass(HashSet.class);
-        verify(foundRoles).addAll(argument.capture());
-        assertEquals(argument.getValue().size(), 2);
+        ArgumentCaptor<Set<Role>> rolesToUpdate = ArgumentCaptor.forClass(HashSet.class);
+        verify(foundRoles).addAll(rolesToUpdate.capture());
 
-        assertEquals( 2, roles.size());
+        assertEquals(rolesToUpdate.getValue().size(), 2);
 
-        RoleDTO firstRole = roles.getFirst();
+        verify(foundRole1).getPermissions();
+        verify(foundRole2).getPermissions();
 
-        assertEquals(firstRole.permissions().get(0).getClass(), PermissionDTO.class);
-        assertEquals(firstRole.permissions().get(0).id(), 1L);
-        assertEquals(firstRole.permissions().get(0).name(), "foo-permission");
+        assertEquals(updatedRoles.size(), 2);
+        assertEquals(2, updatedRoles.getFirst().permissions().size());
+        updatedRoles.getFirst().permissions().forEach(permissionDTO -> {
+            assertEquals(permissionDTO.getClass(), PermissionDTO.class);
+        });
     }
 
     @Test

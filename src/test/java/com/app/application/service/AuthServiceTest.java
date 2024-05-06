@@ -41,9 +41,6 @@ public class AuthServiceTest {
     @Mock
     private AuthHolderInterface authHolder;
 
-    @Mock
-    private JWTAuthInterface authInterface;
-
     @InjectMocks
     private AuthService authService;
 
@@ -77,7 +74,7 @@ public class AuthServiceTest {
 
         ArgumentCaptor<ArrayList<JwtClaimDTO>> argument = ArgumentCaptor.forClass(ArrayList.class);
 
-        verify(auth).createToken(argument.capture());
+        verify(auth, times(2)).createToken(argument.capture());
 
         Date currentDate = new Date();
         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSSSSS");
@@ -139,13 +136,13 @@ public class AuthServiceTest {
         when(cache.get(foundUser.id().toString() + "_current_token")).thenReturn("current_valid_jwt");
         when(cache.add("auth_tokens_blacklist", "current_valid_jwt")).thenReturn(true);
 
-        when(auth.createToken(any(ArrayList.class))).thenReturn("valid_json_web_token");
+        when(auth.createToken(any())).thenReturn("valid_access_token");
 
         LoginRequestDTO loginDTO = new LoginRequestDTO("jdoe@domain.com", "Password1");
         LoginResponseDTO loginResponseDTO = authService.attemptLogin(loginDTO);
-        assertEquals(loginResponseDTO.accessToken(), "valid_json_web_token");
+        assertEquals(loginResponseDTO.accessToken(), "valid_access_token");
 
-        verify(cache).set(foundUser.id() + "_current_token", "valid_json_web_token");
+        verify(cache).set(foundUser.id() + "_current_token", "valid_access_token");
     }
 
     @Test

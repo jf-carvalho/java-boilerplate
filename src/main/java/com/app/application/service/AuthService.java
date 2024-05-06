@@ -23,22 +23,19 @@ public class AuthService {
     private final HasherInterface hasher;
     private final CacheInterface cache;
     private final AuthHolderInterface authHolder;
-    private final JWTAuthInterface jwtHandler;
 
     public AuthService(
             JWTAuthInterface auth,
             UserService userService,
             HasherInterface hasher,
             CacheInterface cache,
-            AuthHolderInterface authHolder,
-            JWTAuthInterface jwtHandler
+            AuthHolderInterface authHolder
     ) {
         this.auth = auth;
         this.userService = userService;
         this.hasher = hasher;
         this.cache = cache;
         this.authHolder = authHolder;
-        this.jwtHandler = jwtHandler;
     }
 
     public LoginResponseDTO attemptLogin(LoginRequestDTO loginRequestDTO) throws ResourceNotFound {
@@ -100,8 +97,8 @@ public class AuthService {
     }
 
     private void checkRefreshTokenExpiration(String refreshToken) {
-        jwtHandler.validateToken(refreshToken);
-        List<JwtClaimDTO> claims = jwtHandler.getClaims();
+        auth.validateToken(refreshToken);
+        List<JwtClaimDTO> claims = auth.getClaims();
 
         String expiresAt = null;
 
