@@ -14,7 +14,9 @@ import com.app.infrastructure.persistence.exceptions.EntityNotFoundException;
 import com.app.infrastructure.persistence.repository.RepositoryInterface;
 import com.app.infrastructure.security.auth.AuthHolderInterface;
 import com.app.infrastructure.security.hasher.HasherInterface;
+import com.app.infrastructure.storage.StorageInterface;
 
+import java.io.File;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -25,15 +27,18 @@ public class UserService {
     private final RepositoryInterface<User> userRepository;
     private final HasherInterface hasherInterface;
     private final AuthHolderInterface authHolder;
+    private final StorageInterface storage;
 
     public UserService(
             RepositoryInterface<User> userRepository,
             HasherInterface hasherInterface,
-            AuthHolderInterface authHolder
+            AuthHolderInterface authHolder,
+            StorageInterface storage
     ) {
         this.userRepository = userRepository;
         this.hasherInterface = hasherInterface;
         this.authHolder = authHolder;
+        this.storage = storage;
     }
 
     public UserResponseDTO get(Long id) {
@@ -47,6 +52,7 @@ public class UserService {
                 user.getId(),
                 user.getName(),
                 user.getEmail(),
+                user.getPicture(),
                 user.getCreatedAt(),
                 user.getUpdatedAt(),
                 user.getDeletedAt()
@@ -63,6 +69,7 @@ public class UserService {
                     user.getId(),
                     user.getName(),
                     user.getEmail(),
+                    user.getPicture(),
                     user.getCreatedAt(),
                     user.getUpdatedAt(),
                     user.getDeletedAt()
@@ -99,6 +106,7 @@ public class UserService {
                 savedUser.getId(),
                 savedUser.getName(),
                 savedUser.getEmail(),
+                savedUser.getPicture(),
                 savedUser.getCreatedAt(),
                 savedUser.getUpdatedAt(),
                 savedUser.getDeletedAt()
@@ -132,6 +140,7 @@ public class UserService {
                 savedUser.getId(),
                 savedUser.getName(),
                 savedUser.getEmail(),
+                savedUser.getPicture(),
                 savedUser.getCreatedAt(),
                 savedUser.getUpdatedAt(),
                 savedUser.getDeletedAt()
@@ -163,6 +172,7 @@ public class UserService {
                 savedUser.getId(),
                 savedUser.getName(),
                 savedUser.getEmail(),
+                savedUser.getPicture(),
                 savedUser.getCreatedAt(),
                 savedUser.getUpdatedAt(),
                 savedUser.getDeletedAt()
@@ -275,5 +285,29 @@ public class UserService {
         if (!matchingUsers.isEmpty()) {
             throw new UserException("There is already an user registered with the provided email.");
         }
+    }
+
+    public UserResponseDTO updateUserPicture(Long userId, File userPicture) {
+        User userPersistenceEntity = userRepository.getById(userId);
+
+        if (userPersistenceEntity.getPicture() != null) {
+            storage.delete(userPersistenceEntity.getPicture());
+        }
+
+        String userPictureString = storage.put(userPicture);
+
+        userPersistenceEntity.setPicture(userPictureString);
+
+        User savedUser = userRepository.update(userId, userPersistenceEntity);
+
+        return new UserResponseDTO(
+                savedUser.getId(),
+                savedUser.getName(),
+                savedUser.getEmail(),
+                savedUser.getPicture(),
+                savedUser.getCreatedAt(),
+                savedUser.getUpdatedAt(),
+                savedUser.getDeletedAt()
+        );
     }
 }

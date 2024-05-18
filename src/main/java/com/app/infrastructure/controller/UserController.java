@@ -12,8 +12,16 @@ import com.app.infrastructure.persistence.exceptions.EntityNotFoundException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.OutputStream;
+import java.net.URLEncoder;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.List;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/users")
@@ -118,6 +126,35 @@ public class UserController {
             boolean deleted = userService.deleteUser((long) id);
 
             return new ResponseEntity<>(null, HttpStatus.OK);
+        } catch (Exception e) {
+            return new ResponseEntity<>(new ErrorResponse(e.getMessage()), HttpStatus.BAD_REQUEST);
+        }
+    }
+
+    @PutMapping("/picture/{id}")
+    @RequiresAuthorization("update users")
+    public ResponseEntity<?> updatePicture(@PathVariable int id, @RequestParam("file") MultipartFile file) {
+        try {
+            Files.createDirectories(Paths.get("src/main/resources/tmp/"));
+
+            File tempFile = new File(
+                    "src/main/resources/tmp/" +
+                    UUID.randomUUID() +
+                    "-" +
+                    URLEncoder.encode(file.getOriginalFilename())
+            );
+
+            try (OutputStream os = new FileOutputStream(tempFile)) {
+                os.write(file.getBytes());
+            }
+
+            UserResponseDTO user = userService.updateUserPicture((long) id, tempFile);
+
+            tempFile.delete();
+
+            return new ResponseEntity<>(user, HttpStatus.OK);
+        } catch (ForbiddenException e) {
+            return new ResponseEntity<>(new ErrorResponse(e.getMessage()), HttpStatus.FORBIDDEN);
         } catch (Exception e) {
             return new ResponseEntity<>(new ErrorResponse(e.getMessage()), HttpStatus.BAD_REQUEST);
         }
