@@ -61,7 +61,7 @@ public class AuthInterceptorHandlerTest {
 
         when(auth.getClaims()).thenReturn(claims);
 
-        when(userService.get(1L)).thenReturn(new UserResponseDTO(1L, "John Doe", "jdoe@domain.com", "", "", ""));
+        when(userService.get(1L)).thenReturn(new UserResponseDTO(1L, "John Doe", "jdoe@domain.com", "", "", "", ""));
 
         authInterceptorHandler.handle(authHeader);
 

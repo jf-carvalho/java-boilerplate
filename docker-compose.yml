@@ -17,3 +17,15 @@ services:
     container_name: redis
     ports:
       - "10001:6379"
+
+  localstack:
+    container_name: localstack
+    image: localstack/localstack
+    ports:
+      - "4566:4566"
+    environment:
+      - SERVICES=s3,sqs
+    volumes:
+      - ".localstack:/var/lib/localstack"
+      - ".localstack/ready.d/:/etc/localstack/init/ready.d"
+      - "/var/run/docker.sock:/var/run/docker.sock"

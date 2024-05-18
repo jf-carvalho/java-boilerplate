@@ -17,11 +17,15 @@ import com.app.infrastructure.security.auth.*;
 import com.app.infrastructure.security.auth.exception.AuthException;
 import com.app.infrastructure.security.hasher.HasherInterface;
 import com.app.infrastructure.security.hasher.SpringBcryptHasher;
+import com.app.infrastructure.storage.S3Storage;
+import com.app.infrastructure.storage.StorageInterface;
 import jakarta.persistence.EntityManager;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Scope;
+import org.springframework.core.env.Environment;
 import redis.clients.jedis.JedisPool;
 
 import java.io.File;
@@ -35,6 +39,9 @@ import java.security.NoSuchAlgorithmException;
 public class ServiceContainer {
     @Autowired
     private EntityManager entityManager;
+
+    @Autowired
+    private Environment env;
 
     @Bean
     @Scope("prototype")
@@ -51,7 +58,7 @@ public class ServiceContainer {
     public UserService userService() {
         RepositoryInterface<User> userRepository = this.repository();
         userRepository.setEntity(User.class);
-        return new UserService(userRepository, hasherInterface(), authHolder());
+        return new UserService(userRepository, hasherInterface(), authHolder(), storageInterface());
     }
 
     @Bean
@@ -130,5 +137,15 @@ public class ServiceContainer {
     @Bean
     public AuthorizationInterceptor authorizationInterceptor() {
         return new AuthorizationInterceptor(authorizationInterceptorHandler());
+    }
+
+    @Bean
+    public StorageInterface storageInterface() {
+        String accessKey = env.getProperty("aws.s3.access_key");;
+        String secretKey = env.getProperty("aws.s3.secret_key");
+        String endpoint = env.getProperty("aws.s3.endpoint");
+        String bucketName = env.getProperty("aws.s3.bucket");
+
+        return new S3Storage(accessKey, secretKey, endpoint, bucketName);
     }
 }
