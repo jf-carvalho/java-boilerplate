@@ -15,13 +15,16 @@ import com.app.infrastructure.persistence.exceptions.EntityNotFoundException;
 import com.app.infrastructure.persistence.repository.RepositoryInterface;
 import com.app.infrastructure.security.auth.AuthHolderInterface;
 import com.app.infrastructure.security.hasher.HasherInterface;
+import com.app.infrastructure.storage.StorageInterface;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.*;
+import software.amazon.awssdk.services.s3.S3Client;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Stream;
@@ -38,6 +41,9 @@ public class UserServiceTest {
 
     @Mock
     private AuthHolderInterface authHolder;
+
+    @Mock
+    private StorageInterface storage;
 
     @InjectMocks
     private UserService userService;
@@ -401,5 +407,52 @@ public class UserServiceTest {
         when(userRepository.getByFilter(any(Criteria.class))).thenReturn(new ArrayList<>());
 
         assertThrows(ResourceNotFound.class, () -> userService.getUserForLogin("jdoe@domain.com"));
+    }
+
+    @Test
+    public void shouldUpdateUserPicture() {
+        User user = new User();
+
+        when(userRepository.getById(1L)).thenReturn(user);
+
+        File file = mock(File.class);
+
+        when(storage.put(file)).thenReturn("path-to-new-file.jpg");
+
+        when(userRepository.update(any(), any())).thenReturn(user);
+
+        UserResponseDTO userResponseDTO = userService.updateUserPicture(1L, file);
+
+        ArgumentCaptor<User> argument = ArgumentCaptor.forClass(User.class);
+
+        verify(userRepository).update(any(), argument.capture());
+
+        assertEquals("path-to-new-file.jpg", argument.getValue().getPicture());
+        assertEquals("path-to-new-file.jpg", userResponseDTO.picture());
+    }
+
+    @Test
+    public void shouldUpdateUserPicture_deletingPrevious() {
+        User user = new User();
+        user.setPicture("http://s3.com/some-old-picture.jpg");
+
+        when(userRepository.getById(1L)).thenReturn(user);
+
+        File file = mock(File.class);
+
+        when(storage.put(file)).thenReturn("path-to-new-file.jpg");
+
+        when(userRepository.update(any(), any())).thenReturn(user);
+
+        UserResponseDTO userResponseDTO = userService.updateUserPicture(1L, file);
+
+        verify(storage).delete("http://s3.com/some-old-picture.jpg");
+
+        ArgumentCaptor<User> argument = ArgumentCaptor.forClass(User.class);
+
+        verify(userRepository).update(any(), argument.capture());
+
+        assertEquals("path-to-new-file.jpg", argument.getValue().getPicture());
+        assertEquals("path-to-new-file.jpg", userResponseDTO.picture());
     }
 }
