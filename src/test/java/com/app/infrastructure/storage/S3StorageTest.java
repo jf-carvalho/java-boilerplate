@@ -33,7 +33,7 @@ public class S3StorageTest {
 
 
     @Test
-    public void testGetS3Client() {
+    public void shouldCreateNewS3ClientInstance() {
         try (MockedStatic<StaticCredentialsProvider> staticCredentialsProviderMock = Mockito.mockStatic(StaticCredentialsProvider.class);
              MockedStatic<AwsBasicCredentials> awsBasicCredentialsMock = Mockito.mockStatic(AwsBasicCredentials.class)) {
 
@@ -66,7 +66,7 @@ public class S3StorageTest {
     public class NestedS3StorageTests {
 
         @BeforeEach
-        public void setUp() {
+        public void init() {
             s3Client = mock(S3Client.class);
             s3Storage = new S3Storage(accessKey, secretKey, endpoint, bucketName) {
                 @Override
@@ -77,7 +77,7 @@ public class S3StorageTest {
         }
 
         @Test
-        public void testPut() {
+        public void shouldPutObjectIntoS3Bucket() {
             File file = new File("test.txt");
             Path filePath = file.toPath();
 
@@ -98,7 +98,7 @@ public class S3StorageTest {
         }
 
         @Test
-        public void testDelete() {
+        public void shouldDeleteObjectFromS3Bucket() {
             S3Utilities s3Utilities = mock(S3Utilities.class);
             when(s3Client.utilities()).thenReturn(s3Utilities);
 
