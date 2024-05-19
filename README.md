@@ -17,6 +17,7 @@ Here's a list of main code features:
 - Tests with JUnit and Jacoco coverage report
 - Database migrations with flyway
 - Basic ACL with roles and permissions
+- AWS S3 integration to manipulate User entity _picture_ attribute
 
 The app was built with the following versions:
 - Java 21
@@ -74,6 +75,7 @@ Now je just need to run tests to see if everything is working smoothly:
 - Infrastructure layer
   - Persistence
   - Security
+  - Storage
 - Application
 - Domain
   - Value Objects dependency
