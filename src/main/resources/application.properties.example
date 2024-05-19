@@ -10,3 +10,8 @@ spring.jackson.property-naming-strategy=SNAKE_CASE
 spring.data.redis.host=localhost
 spring.data.redis.password=
 spring.data.redis.port=6379
+
+aws.s3.access_key=123465
+aws.s3.secret_key=123456
+aws.s3.endpoint=https://s3.localhost.localstack.cloud:4566
+aws.s3.bucket=local-bucket
